@@ -535,6 +535,25 @@ footer a:hover{color:var(--text);border-color:var(--border-lit)}
 @media(max-width:520px){.dock-pop{width:210px}}
 @media (prefers-reduced-motion:reduce){.dock a,.dock a::before,.dock-pop{transition:opacity .15s ease}}
 
+/* ---- flyrank.ai inline link + shared hover card ---- */
+.fly-link{color:var(--text);border-bottom:1px solid var(--border-lit);text-decoration:none;white-space:nowrap;transition:color .15s cubic-bezier(.4,0,.2,1),border-color .15s cubic-bezier(.4,0,.2,1)}
+.fly-link:hover,.fly-link:focus-visible{color:var(--accent-hover);border-color:var(--accent-hover)}
+.fly-pop{
+  position:fixed;width:252px;padding:14px 15px;border-radius:12px;
+  background:var(--bg-2);border:1px solid var(--border);box-shadow:var(--s-overlay);
+  color:var(--text-2);text-align:left;z-index:80;
+  opacity:0;pointer-events:none;transform:translateY(6px) scale(.97);
+  transition:opacity .16s ease,transform .18s cubic-bezier(.34,1.56,.64,1);
+}
+.fly-pop.show{opacity:1;pointer-events:auto;transform:translateY(0) scale(1)}
+.fly-pop .fp-top{display:flex;align-items:center;gap:10px;margin-bottom:9px}
+.fly-pop .fp-badge{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;background:var(--bg);border:1px solid var(--border);font-family:var(--mono);font-weight:700;font-size:14px;color:var(--text);flex:none}
+.fly-pop .fp-name{font-size:13px;font-weight:600;color:var(--text);line-height:1.2}
+.fly-pop .fp-domain{font-family:var(--mono);font-size:11px;color:var(--text-3);letter-spacing:.02em}
+.fly-pop .fp-bio{font-size:12.5px;line-height:1.5;color:var(--text-2)}
+.fly-pop .fp-cta{margin-top:11px;padding-top:10px;border-top:1px solid var(--border);font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-2)}
+@media (prefers-reduced-motion:reduce){.fly-pop{transition:opacity .15s ease}}
+
 /* ============ COMMAND PALETTE ============ */
 .cmdk{position:fixed;inset:0;z-index:100;display:none;align-items:flex-start;justify-content:center;padding-top:14vh;background:rgba(0,0,0,.70);backdrop-filter:blur(8px)}
 .cmdk.open{display:flex}
@@ -588,7 +607,7 @@ footer a:hover{color:var(--text);border-color:var(--border-lit)}
 
 <!-- ============ NAV ============ -->
 <nav>
-  <div class="status-pill"><span class="dot"></span> interning @ flyrank.ai</div>
+  <div class="status-pill"><span class="dot"></span> interning @ <a class="fly-link" href="https://flyrank.ai" target="_blank" rel="noopener">flyrank.ai</a></div>
   <div class="nav-links" id="gnav">
     <ul>
       <li class="active"><a href="#projects">Projects</a></li>
@@ -762,7 +781,7 @@ footer a:hover{color:var(--text);border-color:var(--border-lit)}
     a retrieval pipeline returns the wrong chunk, why an agent loops, what the maths is
     actually doing. That's the part I keep chasing.</p>
     <p>I'm a Data Science &amp; AI student at Leiden University, also in the Honours
-    Programme. Right now I'm interning remotely at <b>flyrank.ai</b>, working on retrieval
+    Programme. Right now I'm interning remotely at <b><a class="fly-link" href="https://flyrank.ai" target="_blank" rel="noopener">flyrank.ai</a></b>, working on retrieval
     pipelines, after a first internship at <b>DecodeLabs</b>. Alongside coursework I run a
     structured AI-engineering track of my own — building an LLM from scratch, RAG over my
     own notes, and a few smaller things that exist mainly because I wanted to know how they
@@ -772,7 +791,7 @@ footer a:hover{color:var(--text);border-color:var(--border-lit)}
 
   <div class="grouprow" data-reveal style="margin-top:64px"><span class="idx">Currently</span><span class="rule"></span><span class="path">Updated Jul 2026</span></div>
   <div class="about-bio" data-reveal>
-    <p>Interning at flyrank.ai on retrieval pipelines. Working through the AI-engineering
+    <p>Interning at <a class="fly-link" href="https://flyrank.ai" target="_blank" rel="noopener">flyrank.ai</a> on retrieval pipelines. Working through the AI-engineering
     roadmap at an hour a day — currently on transformers from first principles. Rebuilding
     this site. Resitting Algorithms &amp; Data Structures, and treating it as a reason to
     learn the material properly rather than pass it.</p>
@@ -821,7 +840,7 @@ footer a:hover{color:var(--text);border-color:var(--border-lit)}
           <div class="t-content">
             <div class="t-when">Jul 2026 — Present <span class="badge acc">Active</span></div>
             <h3>Backend AI Engineering Intern</h3>
-            <div class="t-org">flyrank.ai · Remote</div>
+            <div class="t-org"><a class="fly-link" href="https://flyrank.ai" target="_blank" rel="noopener">flyrank.ai</a> · Remote</div>
             <p class="t-desc">Working on Retrieval-Augmented Generation and backend AI systems —
             RAG architecture, vector databases, chunking strategies, and retrieval pipelines.
             Treating it as an engineering deep-dive: the goal is depth, vocabulary, and
@@ -1939,6 +1958,42 @@ document.getElementById('cform').addEventListener('submit', function(e){
     })
     .catch(()=>{});
 })();
+
+/* flyrank.ai hover card — one shared fixed-position tooltip for every .fly-link.
+   position:fixed so it escapes the nav pill's overflow:hidden clip.
+   Deferred to DOMContentLoaded: #flypop is declared after this script. */
+document.addEventListener('DOMContentLoaded',function(){
+  const pop=document.getElementById('flypop');
+  const links=document.querySelectorAll('.fly-link');
+  if(!pop||!links.length) return;
+  let hideT;
+  function place(el){
+    clearTimeout(hideT);
+    pop.classList.add('show');
+    const r=el.getBoundingClientRect(), pw=pop.offsetWidth, ph=pop.offsetHeight;
+    let left=Math.max(12,Math.min(r.left+r.width/2-pw/2, innerWidth-pw-12));
+    let top=r.top-ph-12;
+    if(top<12) top=r.bottom+12;           // flip below if no room above
+    pop.style.left=left+'px'; pop.style.top=top+'px';
+  }
+  const hide=()=>{ hideT=setTimeout(()=>pop.classList.remove('show'),90); };
+  links.forEach(el=>{
+    el.addEventListener('mouseenter',()=>place(el));
+    el.addEventListener('mouseleave',hide);
+    el.addEventListener('focus',()=>place(el));
+    el.addEventListener('blur',hide);
+  });
+  pop.addEventListener('mouseenter',()=>clearTimeout(hideT));
+  pop.addEventListener('mouseleave',hide);
+});
 </script>
+<div class="fly-pop" id="flypop" role="tooltip">
+  <div class="fp-top">
+    <span class="fp-badge">F</span>
+    <span><span class="fp-name">FlyRank</span><br><span class="fp-domain">flyrank.ai</span></span>
+  </div>
+  <div class="fp-bio">AI growth platform — automates content &amp; SEO so brands rank on Google and get cited by AI assistants like ChatGPT and Claude.</div>
+  <div class="fp-cta">Visit flyrank.ai ↗</div>
+</div>
 </body>
 </html>
