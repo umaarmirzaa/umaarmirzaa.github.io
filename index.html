@@ -281,11 +281,23 @@ section.wrap{padding-top:80px;padding-bottom:56px}
 .about-bio p{margin-bottom:20px;color:var(--text-2);font-size:16px;line-height:1.7}
 .about-bio p:last-child{margin-bottom:0}
 .about-bio p b{color:var(--text);font-weight:500}
-.edu-item{padding:20px 0;border-bottom:1px solid var(--border)}
-.edu-item:last-child{border-bottom:none}
-.edu-item .what{font-weight:500;font-size:16px;color:var(--text)}
-.edu-item .where{font-size:14px;color:var(--text-2);margin-top:4px}
-.edu-item .meta{font-family:var(--mono);font-size:11px;color:var(--text-3);letter-spacing:.15em;margin-top:6px;text-transform:uppercase}
+.edu-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;align-items:stretch}
+.edu-card{
+  position:relative;overflow:hidden;
+  background:rgba(20,20,20,.4);
+  border:1px solid var(--border);border-radius:12px;
+  box-shadow:var(--s-lifted);
+  padding:26px;display:flex;flex-direction:column;
+  transition:border-color .15s cubic-bezier(.4,0,.2,1),background-color .15s cubic-bezier(.4,0,.2,1),transform .15s cubic-bezier(.4,0,.2,1);
+}
+.edu-card:hover{border-color:var(--border-lit);background:rgba(20,20,20,.72);transform:translateY(-2px)}
+/* hairline accent that lights up on hover — the premium tell */
+.edu-card::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--border-lit),transparent);opacity:0;transition:opacity .2s ease}
+.edu-card:hover::before{opacity:1}
+.edu-card .ec-eyebrow{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--text-3);margin-bottom:14px}
+.edu-card .ec-title{font-size:19px;font-weight:600;letter-spacing:-.01em;color:var(--text);text-wrap:balance;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.edu-card .ec-sub{font-size:14px;color:var(--text-2);margin-top:6px;line-height:1.55}
+.edu-card .ec-meta{font-family:var(--mono);font-size:11px;color:var(--text-3);letter-spacing:.12em;text-transform:uppercase;margin-top:auto;padding-top:14px}
 .badge{
   display:inline-block;border:1px solid var(--border);padding:1px 8px;
   font-size:10px;letter-spacing:.1em;text-transform:uppercase;margin-left:8px;
@@ -530,6 +542,7 @@ footer a:hover{color:var(--text);border-color:var(--border-lit)}
   .nav-links::-webkit-scrollbar{display:none}
   .nav-links ul{flex-wrap:nowrap}
   .bento{grid-template-columns:1fr}
+  .edu-grid{grid-template-columns:1fr}
   .bento .proj-card:first-child{grid-column:auto;grid-row:auto}
   .proj-card{min-height:280px}
   .proj-card::after,.bento .proj-card:first-child::after{font-size:220px;bottom:-40px}
@@ -740,27 +753,31 @@ footer a:hover{color:var(--text);border-color:var(--border-lit)}
 </section>
 
 <!-- ============ EDUCATION ============ -->
-<section id="education" class="wrap wrap-narrow">
+<section id="education" class="wrap">
   <div class="sec-head" data-reveal>
     <div class="eyerow"><span class="idx">03 — Education</span><span class="rule"></span><span class="path">Leiden · LIACS</span></div>
     <h2 data-scramble>Education</h2>
   </div>
-  <div class="edu-item" data-reveal>
-    <div class="what">BSc Data Science &amp; AI <span class="badge acc">Year 2</span></div>
-    <div class="where">Leiden University, Netherlands</div>
-    <div class="meta">+ Honours Programme</div>
-  </div>
-  <div class="edu-item" data-reveal>
-    <div class="what">Certifications</div>
-    <ul class="cert-list" style="margin-top:8px">
-      <li><span>Google AI Professional Certificate (7 courses)</span><span class="cwhen">Apr 2026</span></li>
-      <li><span>Learn SQL — Codecademy</span><span class="cwhen">Nov 2024</span></li>
-      <li><span>IELTS Academic — Band 8.5 (C1)</span><span class="cwhen">2024</span></li>
-    </ul>
-  </div>
-  <div class="edu-item" data-reveal>
-    <div class="what">Languages</div>
-    <div class="where">English (C1) · Urdu (native) · Dutch (learning)</div>
+  <div class="edu-grid">
+    <div class="edu-card" data-reveal>
+      <div class="ec-eyebrow">Degree</div>
+      <div class="ec-title">BSc Data Science &amp; AI <span class="badge acc">Year 2</span></div>
+      <div class="ec-sub">Leiden University, Netherlands</div>
+      <div class="ec-meta">+ Honours Programme</div>
+    </div>
+    <div class="edu-card" data-reveal>
+      <div class="ec-eyebrow">Credentials</div>
+      <ul class="cert-list">
+        <li><span>Google AI Professional Certificate (7 courses)</span><span class="cwhen">Apr 2026</span></li>
+        <li><span>Learn SQL — Codecademy</span><span class="cwhen">Nov 2024</span></li>
+        <li><span>IELTS Academic — Band 8.5 (C1)</span><span class="cwhen">2024</span></li>
+      </ul>
+    </div>
+    <div class="edu-card" data-reveal>
+      <div class="ec-eyebrow">Languages</div>
+      <div class="ec-title">Three, one in progress</div>
+      <div class="ec-sub">English (C1) · Urdu (native) · Dutch (learning)</div>
+    </div>
   </div>
 </section>
 
