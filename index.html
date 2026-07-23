@@ -506,7 +506,34 @@ footer a:hover{color:var(--text);border-color:var(--border-lit)}
 .dock a:hover::before,.dock a:focus-visible::before{transform:scale(1);opacity:1}
 .dock a:focus-visible{outline:1px solid var(--border-lit);outline-offset:2px}
 .dock svg{position:relative;width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-@media (prefers-reduced-motion:reduce){.dock a,.dock a::before{transition:none}}
+
+/* ---- hover preview cards ---- */
+.dock a{overflow:visible}
+.dock-pop{
+  position:absolute;bottom:calc(100% + 16px);left:50%;
+  width:244px;padding:14px 15px;border-radius:12px;
+  background:var(--bg-2);border:1px solid var(--border);box-shadow:var(--s-overlay);
+  color:var(--text-2);text-align:left;cursor:default;
+  opacity:0;pointer-events:none;transform:translateX(-50%) translateY(6px) scale(.96);
+  transform-origin:bottom center;
+  transition:opacity .18s ease,transform .2s cubic-bezier(.34,1.56,.64,1);
+  z-index:60;
+}
+.dock a:hover .dock-pop,.dock a:focus-within .dock-pop{opacity:1;pointer-events:auto;transform:translateX(-50%) translateY(0) scale(1)}
+.dock-pop::after{content:"";position:absolute;top:100%;left:50%;transform:translateX(-50%);border:7px solid transparent;border-top-color:var(--border)}
+.dock-pop .dp-top{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.dock-pop .dp-av{width:36px;height:36px;border-radius:50%;object-fit:cover;background:var(--bg);border:1px solid var(--border);flex:none}
+.dock-pop .dp-glyph{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:var(--bg);border:1px solid var(--border);flex:none}
+.dock-pop .dp-glyph svg{width:17px;height:17px;stroke:var(--text-2)}
+.dock-pop .dp-name{font-size:13px;font-weight:600;color:var(--text);line-height:1.2}
+.dock-pop .dp-handle{font-family:var(--mono);font-size:11px;color:var(--text-3);letter-spacing:.02em;margin-top:2px;word-break:break-all}
+.dock-pop .dp-bio{font-size:12.5px;line-height:1.5;color:var(--text-2)}
+.dock-pop .dp-stats{display:flex;gap:14px;font-family:var(--mono);font-size:11px;color:var(--text-3);letter-spacing:.06em;margin-top:9px}
+.dock-pop .dp-stats b{color:var(--text);font-weight:600}
+.dock-pop .dp-cta{margin-top:11px;padding-top:10px;border-top:1px solid var(--border);font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-2)}
+.dock a:hover .dp-cta{color:var(--text)}
+@media(max-width:520px){.dock-pop{width:210px}}
+@media (prefers-reduced-motion:reduce){.dock a,.dock a::before,.dock-pop{transition:opacity .15s ease}}
 
 /* ============ COMMAND PALETTE ============ */
 .cmdk{position:fixed;inset:0;z-index:100;display:none;align-items:flex-start;justify-content:center;padding-top:14vh;background:rgba(0,0,0,.70);backdrop-filter:blur(8px)}
@@ -992,15 +1019,48 @@ footer a:hover{color:var(--text);border-color:var(--border-lit)}
     <div class="dock" role="navigation" aria-label="social links">
       <a href="https://github.com/umaarmirzaa" target="_blank" rel="noopener" aria-label="GitHub" title="GitHub">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+        <span class="dock-pop" id="pop-github">
+          <span class="dp-top">
+            <img class="dp-av" alt="" data-gh-av>
+            <span><span class="dp-name">GitHub</span><span class="dp-handle">@umaarmirzaa</span></span>
+          </span>
+          <span class="dp-bio" data-gh-bio>Code, experiments & coursework.</span>
+          <span class="dp-stats" data-gh-stats></span>
+          <span class="dp-cta">Open profile →</span>
+        </span>
       </a>
       <a href="https://x.com/umaarmirzaa" target="_blank" rel="noopener" aria-label="X" title="X">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4l16 16M20 4L4 20"/></svg>
+        <span class="dock-pop">
+          <span class="dp-top">
+            <span class="dp-glyph"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4l16 16M20 4L4 20"/></svg></span>
+            <span><span class="dp-name">X</span><span class="dp-handle">@umaarmirzaa</span></span>
+          </span>
+          <span class="dp-bio">Notes on AI, ML and what I'm building.</span>
+          <span class="dp-cta">Open profile →</span>
+        </span>
       </a>
       <a href="https://linkedin.com/in/umaarmirzaa" target="_blank" rel="noopener" aria-label="LinkedIn" title="LinkedIn">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-13h4v1.5A6 6 0 0 1 16 8z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+        <span class="dock-pop">
+          <span class="dp-top">
+            <span class="dp-glyph"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-13h4v1.5A6 6 0 0 1 16 8z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg></span>
+            <span><span class="dp-name">LinkedIn</span><span class="dp-handle">in/umaarmirzaa</span></span>
+          </span>
+          <span class="dp-bio">Data Science &amp; AI student at Leiden University.</span>
+          <span class="dp-cta">Open profile →</span>
+        </span>
       </a>
       <a href="mailto:umaarmirzaa@gmail.com" aria-label="Email" title="Email">
         <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 6l-10 7L2 6"/></svg>
+        <span class="dock-pop">
+          <span class="dp-top">
+            <span class="dp-glyph"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 6l-10 7L2 6"/></svg></span>
+            <span><span class="dp-name">Email</span><span class="dp-handle">umaarmirzaa@gmail.com</span></span>
+          </span>
+          <span class="dp-bio">Best for internships &amp; collaboration.</span>
+          <span class="dp-cta">Compose email →</span>
+        </span>
       </a>
     </div>
   </div>
@@ -1861,6 +1921,23 @@ document.getElementById('cform').addEventListener('submit', function(e){
   updateEffectPosition(items[activeIndex]);
   text.classList.add('active');
   new ResizeObserver(() => updateEffectPosition(items[activeIndex])).observe(container);
+})();
+
+/* GitHub hover card — live data from the public API (CORS-open, no auth).
+   Fetch once on load; fail silently to the static fallback text. */
+(function(){
+  const av=document.querySelector('[data-gh-av]');
+  const bio=document.querySelector('[data-gh-bio]');
+  const stats=document.querySelector('[data-gh-stats]');
+  if(!av) return;
+  fetch('https://api.github.com/users/umaarmirzaa')
+    .then(r=>r.ok?r.json():Promise.reject(r.status))
+    .then(d=>{
+      if(d.avatar_url) av.src=d.avatar_url+'&s=72';
+      if(d.bio) bio.textContent=d.bio;
+      stats.innerHTML='<span><b>'+d.public_repos+'</b> repos</span><span><b>'+d.followers+'</b> followers</span>';
+    })
+    .catch(()=>{});
 })();
 </script>
 </body>
