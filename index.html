@@ -1,0 +1,1849 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Muhammad Umar Mirza</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230a0a0a'/%3E%3Ctext x='16' y='22' font-family='JetBrains Mono,monospace' font-size='16' font-weight='700' fill='%23ededef' text-anchor='middle'%3Eum%3C/text%3E%3C/svg%3E">
+<meta name="description" content="Muhammad Umar Mirza — Data Science &amp; AI student at Leiden University. Building intelligent AI systems.">
+<!-- Social preview. og.png is 1200x630. Absolute URLs required by X/LinkedIn/FB. -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://umaarmirzaa.github.io/">
+<meta property="og:title" content="Muhammad Umar Mirza — Data Science & AI">
+<meta property="og:description" content="Data Science & AI student at Leiden University. Building intelligent AI systems.">
+<meta property="og:image" content="https://umaarmirzaa.github.io/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Muhammad Umar Mirza — Data Science & AI">
+<meta name="twitter:description" content="Data Science & AI student at Leiden University. Building intelligent AI systems.">
+<meta name="twitter:image" content="https://umaarmirzaa.github.io/og.png">
+<style>
+/* ============================================================
+   VOID & SYNAPSE — near-black #0a0a0a, no brand hue
+   ============================================================ */
+:root{
+  --bg:#0a0a0a;
+  --bg-2:#141414;
+  --border:#27272a;
+  --border-lit:#3f3f46;
+  --text:#ededef;
+  --text-2:#a1a1aa;
+  --text-3:#52525b;
+  /* accent is brighter text, never a hue */
+  --accent:#ededef;
+  --accent-hover:#fff;
+  --error:#f87171;
+  --s-lifted:0 2px 8px rgba(0,0,0,.30);
+  --s-overlay:0 8px 32px rgba(0,0,0,.50);
+  --sans:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mono:"JetBrains Mono","Cascadia Code","Fira Code",Consolas,ui-monospace,monospace;
+  --serif:Georgia,"Times New Roman",serif;
+  --nav-h:64px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;scrollbar-width:none;-ms-overflow-style:none}
+html::-webkit-scrollbar{width:0;height:0;display:none}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--sans);
+  font-size:16px;
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+  /* faint grid — barely-there hairlines on the void */
+  background-image:
+    linear-gradient(rgba(237,237,239,.02) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(237,237,239,.02) 1px,transparent 1px);
+  background-size:56px 56px;
+}
+::selection{background:var(--text);color:var(--bg)}
+a{color:inherit;text-decoration:none}
+
+/* neuron canvas */
+#neurons{
+  position:fixed;inset:0;
+  width:100vw;height:100vh;
+  z-index:0;pointer-events:none;
+  opacity:.12;
+}
+/* content sits above canvas */
+.site{position:relative;z-index:1}
+
+/* ============ NAV ============ */
+nav{
+  position:fixed;top:16px;left:50%;transform:translateX(-50%);
+  display:flex;align-items:center;gap:12px;
+  padding:7px 14px 7px 7px;
+  background:rgba(10,10,10,.72);
+  border:1px solid var(--border);border-radius:999px;
+  box-shadow:var(--s-overlay);
+  backdrop-filter:blur(12px);
+  z-index:50;max-width:calc(100vw - 28px);
+  /* clips GooeyNav's opaque black metaball plate (.effect.filter::before,
+     inset:-75px) — it was painting a dark slab below the bar. Particles still
+     have the full bar to burst in. */
+  overflow:hidden;
+  transition:transform .35s cubic-bezier(.4,0,.2,1),opacity .35s cubic-bezier(.4,0,.2,1);
+}
+/* floating nav: retracts on scroll down, drops back in on scroll up */
+nav.nav-hidden{transform:translateX(-50%) translateY(calc(-100% - 24px));opacity:0;pointer-events:none}
+@media (prefers-reduced-motion:reduce){nav{transition:none}nav.nav-hidden{transform:translateX(-50%);opacity:1;pointer-events:auto}}
+@keyframes blink{50%{opacity:0}}
+.status-pill{
+  display:flex;align-items:center;gap:8px;
+  border:1px solid var(--border);border-radius:999px;
+  padding:7px 14px;font-size:11px;letter-spacing:.08em;
+  text-transform:uppercase;white-space:nowrap;
+  background:var(--bg-2);color:var(--text-2);
+}
+.status-pill .dot{
+  width:7px;height:7px;border-radius:50%;
+  background:var(--text);
+  animation:pulse 1.6s ease-in-out infinite;
+}
+@keyframes pulse{
+  0%,100%{box-shadow:0 0 0 0 rgba(237,237,239,.30);opacity:1}
+  50%{box-shadow:0 0 0 6px rgba(237,237,239,0);opacity:.55}
+}
+/* PillNav-style individual pills (React Bits look, ported to vanilla CSS) */
+/* ---- GooeyNav (React Bits port, vanilla) ----
+   Metaball trick: a blurred + hugely-contrasted layer over solid black,
+   blended with `lighten`. Blur bleeds the shapes together, contrast snaps
+   the soft edges back to hard ones, so overlapping blobs read as one mass. */
+:root{
+  --linear-ease:linear(0,0.068,0.19 2.7%,0.804 8.1%,1.037,1.199 13.2%,1.245,1.27 15.8%,1.274,1.272 17.4%,1.249 19.1%,0.996 28%,0.949,0.928 33.3%,0.926,0.933 36.8%,1.001 45.6%,1.013,1.019 50.8%,1.018 54.4%,1 63.1%,0.995 68%,1.001 85%,1);
+  /* palette is hueless, so the particles are just shades of the text colour */
+  --color-1:#ededef; --color-2:#a1a1aa; --color-3:#d4d4d8; --color-4:#fff;
+}
+.nav-links{position:relative}
+.nav-links ul{
+  display:flex;gap:4px;list-style:none;margin:0;padding:0;position:relative;z-index:3;
+  font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;
+}
+.nav-links li{
+  border-radius:999px;position:relative;cursor:pointer;color:var(--text-2);
+  transition:color .3s ease,box-shadow .3s ease;
+  box-shadow:0 0 .5px 1.5px transparent;
+}
+.nav-links li a{display:inline-block;padding:8px 14px;color:inherit;white-space:nowrap}
+.nav-links li:focus-within:has(:focus-visible){box-shadow:0 0 .5px 1.5px var(--text)}
+.nav-links li::after{
+  content:"";position:absolute;inset:0;border-radius:999px;background:var(--text);
+  opacity:0;transform:scale(0);transition:all .3s ease;z-index:-1;
+}
+.nav-links li.active{color:var(--bg)}
+.nav-links li.active::after{opacity:1;transform:scale(1)}
+.nav-links .effect{
+  position:absolute;left:0;top:0;width:0;height:0;opacity:1;
+  pointer-events:none;display:grid;place-items:center;z-index:1;
+}
+.nav-links .effect.text{color:var(--text-2);transition:color .3s ease;
+  font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+.nav-links .effect.text.active{color:var(--bg)}
+.nav-links .effect.filter{filter:blur(7px) contrast(100) blur(0);mix-blend-mode:lighten}
+.nav-links .effect.filter::before{content:"";position:absolute;inset:-75px;z-index:-2;background:#000}
+.nav-links .effect.filter::after{
+  content:"";position:absolute;inset:0;background:var(--text);
+  transform:scale(0);opacity:0;z-index:-1;border-radius:999px;
+}
+.nav-links .effect.active::after{animation:pill .3s ease both}
+@keyframes pill{to{transform:scale(1);opacity:1}}
+.particle,.point{display:block;opacity:0;width:20px;height:20px;border-radius:100%;transform-origin:center}
+.particle{--time:5s;position:absolute;top:calc(50% - 8px);left:calc(50% - 8px);
+  animation:particle calc(var(--time)) ease 1 -350ms}
+.point{background:var(--color);opacity:1;animation:point calc(var(--time)) ease 1 -350ms}
+@keyframes particle{
+  0%{transform:rotate(0deg) translate(var(--start-x),var(--start-y));opacity:1;animation-timing-function:cubic-bezier(.55,0,1,.45)}
+  70%{transform:rotate(calc(var(--rotate)*.5)) translate(calc(var(--end-x)*1.2),calc(var(--end-y)*1.2));opacity:1;animation-timing-function:ease}
+  85%{transform:rotate(calc(var(--rotate)*.66)) translate(var(--end-x),var(--end-y));opacity:1}
+  100%{transform:rotate(calc(var(--rotate)*1.2)) translate(calc(var(--end-x)*.5),calc(var(--end-y)*.5));opacity:1}
+}
+@keyframes point{
+  0%{transform:scale(0);opacity:0;animation-timing-function:cubic-bezier(.55,0,1,.45)}
+  25%{transform:scale(calc(var(--scale)*.25))}
+  38%{opacity:1}
+  65%{transform:scale(var(--scale));opacity:1;animation-timing-function:ease}
+  85%{transform:scale(var(--scale));opacity:1}
+  100%{transform:scale(0);opacity:0}
+}
+
+/* ============ LAYOUT ============ */
+.wrap{max-width:1080px;margin:0 auto;padding:0 28px}
+.wrap-narrow{max-width:720px}
+section{position:relative;scroll-margin-top:96px}
+/* asymmetric on purpose: a heading sits closer to its own content than to
+   the section above it, so the pairing reads correctly */
+section.wrap{padding-top:80px;padding-bottom:56px}
+
+/* reveal */
+[data-reveal]{opacity:0;transform:translateY(20px);transition:opacity .6s cubic-bezier(.4,0,.2,1),transform .6s cubic-bezier(.4,0,.2,1)}
+[data-reveal].in{opacity:1;transform:none}
+.hero [data-reveal]{transform:translateY(30px)}
+.hero [data-reveal].in{transform:none}
+
+/* section heading */
+.sec-head{margin-bottom:48px}
+/* mono eyebrow —— hairline —— mono meta */
+.sec-head .eyerow{display:flex;align-items:center;gap:16px;margin-bottom:18px}
+.sec-head .idx{font-family:var(--mono);font-size:11px;color:var(--text-3);letter-spacing:.18em;text-transform:uppercase;white-space:nowrap}
+.sec-head .rule{flex:1;height:1px;background:var(--border);transform:scaleX(0);transform-origin:left;transition:transform .7s cubic-bezier(.4,0,.2,1)}
+.sec-head.in .rule{transform:scaleX(1)}
+.sec-head .path{font-family:var(--mono);font-size:11px;color:var(--text-3);letter-spacing:.08em;white-space:nowrap}
+.sec-head h2{
+  font-size:clamp(28px,3.4vw,36px);font-weight:600;letter-spacing:-.02em;
+  font-family:var(--sans);color:var(--text);text-wrap:balance;
+}
+
+/* terminal window chrome */
+.term{
+  background:rgba(20,20,20,.4);
+  border:1px solid var(--border);
+  border-radius:12px;overflow:hidden;
+  box-shadow:var(--s-lifted);
+}
+.term-bar{
+  display:flex;align-items:center;gap:8px;
+  border-bottom:1px solid var(--border);
+  padding:8px 14px;font-size:11px;letter-spacing:.06em;color:var(--text-3);
+}
+.term-bar .dots{display:flex;gap:5px}
+.term-bar .dots i{width:9px;height:9px;border:1px solid var(--border-lit);border-radius:50%;display:block}
+.term-bar .dots i:first-child{background:var(--text-3);border-color:var(--text-3)}
+.term-bar .title{margin-left:8px}
+.term-body{padding:22px 24px}
+
+/* ============ HERO ============ */
+.hero{
+  min-height:100vh;display:flex;flex-direction:column;justify-content:flex-end;
+  padding-top:calc(var(--nav-h) + 30px);padding-bottom:128px;
+}
+.hero .eyebrow{
+  font-family:var(--mono);
+  font-size:12px;letter-spacing:.18em;color:var(--text-3);
+  text-transform:uppercase;margin-bottom:40px;
+}
+/* the name carries the page — big, tight, and given room on every side.
+   nothing else in the hero competes for that space. */
+.hero h1{
+  font-size:clamp(44px,7.6vw,104px);
+  line-height:.88;letter-spacing:-.045em;font-weight:600;
+  color:var(--text);text-wrap:balance;
+  margin:0 0 8px;
+}
+.hero-rule{height:1px;width:min(192px,60%);background:var(--text);margin:44px 0 32px}
+.hero .sub{
+  margin-top:0;max-width:480px;font-size:17px;color:var(--text-2);
+}
+.hero-cta{display:flex;gap:12px;flex-wrap:wrap;margin-top:40px}
+.btn{
+  font-family:var(--sans);font-weight:500;font-size:12px;letter-spacing:.1em;text-transform:uppercase;
+  padding:12px 22px;border:1px solid var(--border);border-radius:8px;
+  color:var(--text-2);background:var(--bg-2);
+  transition:color .15s cubic-bezier(.4,0,.2,1),border-color .15s cubic-bezier(.4,0,.2,1),background-color .15s cubic-bezier(.4,0,.2,1);
+}
+.btn:hover{color:var(--text);border-color:var(--border-lit)}
+.btn-solid{background:var(--text);border-color:var(--text);color:var(--bg)}
+.btn-solid:hover{background:var(--accent-hover);border-color:var(--accent-hover);color:var(--bg)}
+.portrait-wrap{position:relative;justify-self:end;width:100%;max-width:420px}
+#portrait{cursor:default}
+.hero-grid,.stats{position:relative;z-index:1}
+.hero-grid{display:grid;grid-template-columns:1.35fr .65fr;gap:72px;align-items:center}
+.hero-left{display:flex;flex-direction:column;min-width:0}
+.hero-term{font-size:13.5px;line-height:1.75;min-height:190px}
+.hero-term .ln{white-space:pre-wrap;word-break:break-word}
+.hero-term .prompt{color:var(--accent)}
+.hero-term .out{color:var(--text-2)}
+.hero-term .tcursor{display:inline-block;width:8px;height:14px;background:var(--text);vertical-align:-2px;animation:blink 1s steps(1) infinite}
+.stats{
+  display:grid;grid-template-columns:repeat(4,1fr);
+  border:1px solid var(--border);margin-top:64px;
+  background:rgba(20,20,20,.4);
+  border-radius:12px;overflow:hidden;
+  box-shadow:var(--s-lifted);
+}
+.stat{padding:20px 18px;border-right:1px solid var(--border)}
+.stat:last-child{border-right:none}
+.stat .num{font-size:clamp(26px,3.4vw,40px);font-weight:800;letter-spacing:-.02em}
+.stat .num em{font-style:normal;color:var(--accent)}
+.stat .lbl{font-family:var(--mono);font-size:10px;letter-spacing:.18em;color:var(--text-3);text-transform:uppercase;margin-top:4px}
+.scroll-hint{
+  margin-top:56px;font-family:var(--mono);font-size:11px;letter-spacing:.3em;color:var(--text-3);
+  text-transform:uppercase;display:flex;align-items:center;gap:10px;
+}
+.scroll-hint .bar{width:1px;height:34px;background:var(--text-3);animation:drip 1.6s ease-in-out infinite;transform-origin:top}
+@keyframes drip{0%{transform:scaleY(0)}55%{transform:scaleY(1)}100%{transform:scaleY(1);opacity:0}}
+
+/* ============ ABOUT ============ */
+#portrait{display:block;width:100%;height:auto}
+.about-bio p{margin-bottom:20px;color:var(--text-2);font-size:16px;line-height:1.7}
+.about-bio p:last-child{margin-bottom:0}
+.about-bio p b{color:var(--text);font-weight:500}
+.edu-item{padding:20px 0;border-bottom:1px solid var(--border)}
+.edu-item:last-child{border-bottom:none}
+.edu-item .what{font-weight:500;font-size:16px;color:var(--text)}
+.edu-item .where{font-size:14px;color:var(--text-2);margin-top:4px}
+.edu-item .meta{font-family:var(--mono);font-size:11px;color:var(--text-3);letter-spacing:.15em;margin-top:6px;text-transform:uppercase}
+.badge{
+  display:inline-block;border:1px solid var(--border);padding:1px 8px;
+  font-size:10px;letter-spacing:.1em;text-transform:uppercase;margin-left:8px;
+  background:var(--bg-2);color:var(--text-2);vertical-align:2px;border-radius:999px;
+}
+.badge.acc{border-color:var(--border-lit);color:var(--text)}
+.cert-list{list-style:none;font-size:14px;color:var(--text-2)}
+.cert-list li{padding:8px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;gap:10px}
+.cert-list li:last-child{border:none}
+.cert-list .cwhen{font-family:var(--mono);color:var(--text-3);font-size:11px;white-space:nowrap}
+
+/* ============ PROJECTS ============ */
+/* group header row — same shape as .sec-head .eyerow */
+.grouprow{display:flex;align-items:center;gap:16px;margin-bottom:20px}
+.grouprow .idx{font-family:var(--mono);font-size:11px;color:var(--text-3);letter-spacing:.18em;text-transform:uppercase;white-space:nowrap}
+.grouprow .rule{flex:1;height:1px;background:var(--border)}
+.grouprow .path{font-family:var(--mono);font-size:11px;color:var(--text-3);letter-spacing:.08em;white-space:nowrap}
+
+.bento{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.bento .proj-card:first-child{grid-column:span 2}
+/* 5 tiles in a 3-col grid leave one hole in the last row — the final tile takes it */
+.proj-card{
+  position:relative;overflow:hidden;
+  background:rgba(20,20,20,.4);
+  border:1px solid var(--border);
+  border-radius:12px;
+  box-shadow:var(--s-lifted);
+  transition:border-color .15s cubic-bezier(.4,0,.2,1),background-color .15s cubic-bezier(.4,0,.2,1);
+}
+.proj-card:hover{border-color:var(--border-lit);background:rgba(20,20,20,.75)}
+/* ---- PixelCard (React Bits port, vanilla) ----
+   Canvas sits at the very back. A scrim fades in above it on hover so the
+   copy keeps full contrast no matter how dense the pixel field gets. */
+.pixel-canvas{position:absolute;inset:0;width:100%;height:100%;display:block;z-index:0;pointer-events:none}
+.proj-card::before{
+  content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
+  /* uniform, not a gradient: the smaller tiles carry copy edge to edge, so
+     any "open band" would land under text on one card or another. Flat .88
+     keeps every word above 12:1 while the pixels still read as a shimmer. */
+  background:rgba(10,10,10,.88);
+  opacity:0;transition:opacity .5s cubic-bezier(.5,1,.89,1);
+}
+.proj-card:hover::before,.proj-card:focus-within::before{opacity:1}
+/* ghost initial letter, bled off the bottom-right corner */
+.proj-card::after{
+  content:attr(data-letter);
+  position:absolute;right:-24px;bottom:-56px;z-index:0;
+  font:700 320px/.75 var(--mono);
+  color:rgba(237,237,239,.035);
+  pointer-events:none;user-select:none;
+}
+.bento .proj-card:first-child::after{font-size:400px;bottom:-72px}
+.proj-body{position:relative;z-index:2;padding:32px;display:flex;flex-direction:column;gap:14px;height:100%}
+.proj-idx{font-family:var(--mono);font-size:11px;color:var(--text-3);letter-spacing:.15em;
+  transition:color .3s cubic-bezier(.4,0,.2,1)}
+/* tertiary grey is decorative at rest; over a live pixel field it needs lifting */
+.proj-card:hover .proj-idx{color:var(--text-2)}
+.proj-main{margin-top:auto}
+.proj-main h3{font-size:24px;font-weight:500;letter-spacing:-.01em;text-wrap:balance;color:var(--text)}
+.bento .proj-card:first-child .proj-main h3{font-size:clamp(26px,3vw,36px);font-weight:600;letter-spacing:-.02em}
+.pdesc code{font-family:var(--mono);font-size:.88em;color:var(--text);background:rgba(237,237,239,.06);border-radius:4px;padding:1px 5px}
+.proj-main .pdesc{margin-top:10px;color:var(--text-2);font-size:14.5px;max-width:520px}
+.tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.tag{font-family:var(--mono);border:1px solid var(--border);border-radius:999px;padding:3px 11px;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;background:var(--bg-2);color:var(--text-2)}
+.tag.acc{border-color:var(--border-lit);color:var(--text)}
+.proj-link{
+  align-self:start;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--text-2);border-bottom:1px solid var(--border-lit);padding-bottom:2px;white-space:nowrap;
+  transition:color .15s cubic-bezier(.4,0,.2,1),border-color .15s cubic-bezier(.4,0,.2,1);
+}
+.proj-link:hover{color:var(--accent-hover);border-color:var(--text)}
+.proj-link-off{color:var(--text-3);border-bottom-style:dashed;border-color:var(--border);cursor:default}
+.more-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:12px}
+.more-block{margin-top:64px}
+.mini{
+  border:1px solid var(--border);padding:20px;background:rgba(20,20,20,.4);
+  border-radius:12px;box-shadow:var(--s-lifted);
+  transition:border-color .15s cubic-bezier(.4,0,.2,1),background-color .15s cubic-bezier(.4,0,.2,1);
+  display:block;
+}
+.mini:hover{border-color:var(--border-lit);background:rgba(20,20,20,.75)}
+.mini .mname{font-weight:500;font-size:14px;color:var(--text)}
+.mini .mdesc{font-size:12.5px;color:var(--text-2);margin-top:6px;line-height:1.5}
+.mini .marrow{font-family:var(--mono);font-size:11px;color:var(--text-3);margin-top:12px;display:block;letter-spacing:.08em}
+
+/* ============ SKILLS ============ */
+.skills-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:22px}
+.skill-box{border:1px solid var(--border);background:rgba(20,20,20,.4);border-radius:12px;overflow:hidden;box-shadow:var(--s-lifted)}
+.skill-box .sb-head{font-family:var(--mono);border-bottom:1px solid var(--border);padding:12px 18px;font-size:11px;letter-spacing:.15em;text-transform:uppercase;display:flex;justify-content:space-between;gap:10px;color:var(--text-3)}
+.skill-box .sb-head span:first-child{white-space:nowrap}
+.skill-box .sb-head span:last-child{color:var(--text-2)}
+.skill-box .sb-body{padding:18px;display:flex;flex-wrap:wrap;gap:8px}
+.loading-row{
+  margin-top:26px;border:1px solid var(--border);padding:14px 18px;border-radius:12px;
+  font-size:12.5px;letter-spacing:.04em;background:rgba(20,20,20,.4);color:var(--text-2);
+  display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+}
+.loading-row .lbl{font-family:var(--mono);color:var(--text-3);text-transform:uppercase;font-size:11px;letter-spacing:.15em;white-space:nowrap}
+.loading-row .bar{flex:1;min-width:160px;height:8px;border:1px solid var(--border);border-radius:999px;position:relative;overflow:hidden}
+.loading-row .bar i{position:absolute;inset:1px;width:34%;background:repeating-linear-gradient(90deg,var(--text-3) 0 6px,transparent 6px 10px);animation:load 2.4s linear infinite}
+@keyframes load{0%{transform:translateX(-100%)}100%{transform:translateX(300%)}}
+
+/* ============ EXPERIENCE ============ */
+.timeline{position:relative;padding-left:34px}
+.timeline::before{
+  content:"";position:absolute;left:8px;top:6px;bottom:6px;width:0;
+  border-left:2px dotted var(--border-lit);
+}
+.t-item{position:relative;padding-bottom:44px}
+.t-item:last-child{padding-bottom:0}
+.t-item::before{
+  content:"";position:absolute;left:-31px;top:6px;
+  width:12px;height:12px;border-radius:50%;
+  background:var(--bg);border:2px solid var(--border-lit);
+}
+.t-item.live::before{background:var(--text);border-color:var(--text);animation:pulse 1.8s ease-in-out infinite}
+.t-item .t-when{font-family:var(--mono);font-size:11px;letter-spacing:.15em;color:var(--text-3);text-transform:uppercase}
+.t-item h3{font-size:20px;font-weight:600;margin-top:6px;letter-spacing:-.02em;text-wrap:balance}
+.t-item .t-org{font-size:13.5px;color:var(--text-2);margin-top:2px}
+.t-item .t-desc{font-size:14px;color:var(--text-2);margin-top:10px;max-width:640px}
+
+/* ============ READING ============ */
+.read-item{
+  display:grid;grid-template-columns:120px 1fr auto;gap:22px;align-items:baseline;
+  padding:24px 4px;border-bottom:1px solid var(--border);
+  transition:background-color .15s cubic-bezier(.4,0,.2,1);
+}
+.read-item:hover{background:rgba(237,237,239,.025)}
+.r-status{font-family:var(--mono);font-size:10px;letter-spacing:.15em;text-transform:uppercase;display:flex;flex-direction:column;gap:6px}
+.r-status .st{border:1px solid var(--border);border-radius:999px;padding:2px 8px;text-align:center;color:var(--text-2)}
+.r-status .st.reading{border-color:var(--border-lit);color:var(--text)}
+.r-status .st.done{background:var(--text-3);border-color:var(--text-3);color:var(--bg)}
+.r-status .rtype{color:var(--text-3);text-align:center;letter-spacing:.2em}
+.r-main .rtitle{font-family:var(--serif);font-size:clamp(18px,2.4vw,24px);font-weight:400;font-style:italic;line-height:1.25;color:var(--text);text-wrap:balance}
+.r-main .rby{font-size:12.5px;color:var(--text-3);margin-top:6px;letter-spacing:.04em}
+.r-link{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;white-space:nowrap;color:var(--text-2);border-bottom:1px solid var(--border-lit);padding-bottom:2px;transition:color .15s cubic-bezier(.4,0,.2,1),border-color .15s cubic-bezier(.4,0,.2,1)}
+.r-link:hover{color:var(--accent-hover);border-color:var(--text)}
+
+/* ============ CONTACT ============ */
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:start}
+.big-cta{font-size:clamp(30px,4.6vw,52px);font-weight:600;line-height:1.05;letter-spacing:-.03em;text-wrap:balance}
+.big-cta em{font-style:normal;color:var(--text-3)}
+.contact-links{margin-top:34px}
+.c-row{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:14px 2px;border-bottom:1px solid var(--border);font-size:14px;
+}
+.c-row .k{font-family:var(--mono);color:var(--text-3);font-size:11px;letter-spacing:.15em;text-transform:uppercase}
+.c-row a{color:var(--text);border-bottom:1px solid var(--border-lit);padding-bottom:1px;transition:color .15s cubic-bezier(.4,0,.2,1),border-color .15s cubic-bezier(.4,0,.2,1)}
+.c-row a:hover{color:var(--accent-hover);border-color:var(--text)}
+.cform label{display:block;font-family:var(--mono);font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--text-3);margin:18px 0 6px}
+.cform label .q{color:var(--text-2)}
+.cform input,.cform textarea{
+  width:100%;border:1px solid var(--border);background:var(--bg-2);border-radius:8px;
+  font-family:var(--sans);font-size:14px;padding:11px 13px;color:var(--text);
+  outline:none;resize:vertical;
+  transition:border-color .15s cubic-bezier(.4,0,.2,1);
+}
+.cform input::placeholder,.cform textarea::placeholder{color:var(--text-3)}
+.cform input:focus,.cform textarea:focus{border-color:var(--border-lit)}
+.cform button{
+  margin-top:22px;border:1px solid var(--text);background:var(--text);color:var(--bg);
+  font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;
+  padding:13px 26px;cursor:pointer;border-radius:8px;
+  transition:background-color .15s cubic-bezier(.4,0,.2,1),border-color .15s cubic-bezier(.4,0,.2,1);
+}
+.cform button:hover{background:var(--accent-hover);border-color:var(--accent-hover)}
+.micro{font-size:11.5px;color:var(--text-3);margin-top:12px;letter-spacing:.03em}
+
+/* ============ FOOTER ============ */
+footer{
+  border-top:1px solid var(--border);margin-top:60px;
+  padding:40px 28px;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;
+  font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--text-3);
+  background:rgba(10,10,10,.85);
+}
+footer a:not(.dock a){border-bottom:1px solid var(--border);transition:color .15s cubic-bezier(.4,0,.2,1),border-color .15s cubic-bezier(.4,0,.2,1)}
+footer a:hover{color:var(--text);border-color:var(--border-lit)}
+.foot-col{line-height:1.8;order:0}
+.foot-col b{color:var(--text);font-size:12px;font-weight:500}
+.foot-right{text-align:right;order:2}
+.foot-status{display:inline-flex;align-items:center;gap:7px;color:var(--text-2)}
+.fdot{width:7px;height:7px;border-radius:50%;background:var(--text);animation:pulse 1.6s ease-in-out infinite;display:inline-block}
+
+/* ---- social dock (bottom pill) ---- */
+.dock-wrap{flex:1;display:flex;justify-content:center;order:1}
+.dock{
+  display:flex;align-items:center;gap:4px;
+  padding:5px;border-radius:999px;
+  background:var(--bg-2);border:1px solid var(--border);
+  box-shadow:var(--s-lifted);
+}
+.dock a{
+  position:relative;display:grid;place-items:center;
+  width:36px;height:36px;border-radius:50%;border:0;
+  color:var(--text-3);
+  transition:color .2s cubic-bezier(.4,0,.2,1),transform .2s cubic-bezier(.4,0,.2,1);
+}
+.dock a::before{
+  content:"";position:absolute;inset:0;border-radius:50%;
+  background:rgba(237,237,239,.10);
+  transform:scale(.4);opacity:0;
+  transition:transform .25s cubic-bezier(.34,1.56,.64,1),opacity .2s ease;
+}
+.dock a:hover,.dock a:focus-visible{color:var(--accent-hover);transform:translateY(-2px)}
+.dock a:hover::before,.dock a:focus-visible::before{transform:scale(1);opacity:1}
+.dock a:focus-visible{outline:1px solid var(--border-lit);outline-offset:2px}
+.dock svg{position:relative;width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+@media (prefers-reduced-motion:reduce){.dock a,.dock a::before{transition:none}}
+
+/* ============ COMMAND PALETTE ============ */
+.cmdk{position:fixed;inset:0;z-index:100;display:none;align-items:flex-start;justify-content:center;padding-top:14vh;background:rgba(0,0,0,.70);backdrop-filter:blur(8px)}
+.cmdk.open{display:flex}
+.cmdk-box{width:min(560px,92vw);background:var(--bg-2);border:1px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:var(--s-overlay)}
+.cmdk-box input{
+  width:100%;border:none;border-bottom:1px solid var(--border);background:transparent;
+  font-family:var(--mono);font-size:15px;padding:16px 18px;outline:none;color:var(--text);
+}
+.cmdk-box input::placeholder{color:var(--text-3)}
+.cmdk-list{max-height:320px;overflow-y:auto}
+.cmdk-item{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:12px 18px;font-size:13.5px;cursor:pointer;border-bottom:1px solid var(--border);color:var(--text-2);
+}
+.cmdk-item .hint{font-family:var(--mono);font-size:10px;color:var(--text-3);letter-spacing:.1em;text-transform:uppercase}
+.cmdk-item.sel,.cmdk-item:hover{background:var(--text);color:var(--bg)}
+.cmdk-item.sel .hint,.cmdk-item:hover .hint{color:rgba(10,10,10,.6)}
+.cmdk-empty{padding:18px;font-size:12.5px;color:var(--text-3)}
+
+/* typed-terminal chrome retired — .t-content is plain content now */
+
+/* ============ RESPONSIVE ============ */
+@media(max-width:900px){
+  .hero-grid,.contact-grid{grid-template-columns:1fr}
+  .more-grid{grid-template-columns:repeat(2,1fr)}
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .skills-grid{grid-template-columns:1fr}
+  .stat:nth-child(2){border-right:none}
+  .stat:nth-child(1),.stat:nth-child(2){border-bottom:1px solid var(--border)}
+  .status-pill{display:none}
+  .nav-links{display:block;overflow-x:auto;-ms-overflow-style:none;scrollbar-width:none}
+  .nav-links::-webkit-scrollbar{display:none}
+  .nav-links ul{flex-wrap:nowrap}
+  .bento{grid-template-columns:1fr}
+  .bento .proj-card:first-child{grid-column:auto;grid-row:auto}
+  .proj-card{min-height:280px}
+  .proj-card::after,.bento .proj-card:first-child::after{font-size:220px;bottom:-40px}
+  section.wrap{padding-top:56px;padding-bottom:40px}
+  .read-item{grid-template-columns:1fr;gap:10px}
+  .r-status{flex-direction:row}
+}
+@media(prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
+}
+</style>
+</head>
+<body>
+
+<canvas id="neurons"></canvas>
+
+<!-- ============ NAV ============ -->
+<nav>
+  <div class="status-pill"><span class="dot"></span> interning @ flyrank.ai</div>
+  <div class="nav-links" id="gnav">
+    <ul>
+      <li class="active"><a href="#projects">Projects</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#experience">Experience</a></li>
+      <li><a href="#reading">Reading</a></li>
+      <li><a href="#contact">Let's connect</a></li>
+    </ul>
+    <span class="effect filter"></span>
+    <span class="effect text"></span>
+  </div>
+</nav>
+
+<div class="site">
+
+<!-- ============ HERO ============ -->
+<header class="hero wrap" id="home">
+  <div class="hero-grid">
+   <div class="hero-left">
+    <div class="eyebrow" data-reveal>Data Science &amp; AI · Leiden University</div>
+    <h1 id="hero-h1" data-reveal>Muhammad Umar Mirza</h1>
+    <div class="hero-rule" data-reveal></div>
+    <p class="sub" data-reveal>Building intelligent AI systems.</p>
+    <div class="hero-cta" data-reveal>
+      <a class="btn btn-solid" href="#projects">Projects</a>
+      <a class="btn" href="#contact">Get in touch</a>
+    </div>
+   </div>
+    <div class="portrait-wrap" data-reveal>
+      <canvas id="portrait"></canvas>
+    </div>
+  </div>
+  <div class="stats" data-reveal>
+    <div class="stat"><div class="num"><span class="count" data-target="14">0</span><em>+</em></div><div class="lbl">Projects Shipped</div></div>
+    <div class="stat"><div class="num"><span class="count" data-target="9">0</span></div><div class="lbl">Certifications</div></div>
+    <div class="stat"><div class="num"><span class="count" data-target="5">0</span></div><div class="lbl">Public Repos</div></div>
+    <div class="stat"><div class="num"><span class="count" data-target="2">0</span></div><div class="lbl">Internships</div></div>
+  </div>
+</header>
+
+<!-- ============ PROJECTS ============ -->
+<section id="projects" class="wrap">
+  <div class="sec-head" data-reveal>
+    <div class="eyerow"><span class="idx">01 — Projects</span><span class="rule"></span><span class="path">Selected work</span></div>
+    <h2 data-scramble>Projects</h2>
+  </div>
+
+  <div class="grouprow" data-reveal><span class="idx">Main work</span><span class="rule"></span><span class="path">5 projects</span></div>
+  <div class="bento">
+
+    <article class="proj-card" data-letter="M" data-reveal>
+      <div class="proj-body">
+        <div class="proj-idx">01 / 05</div>
+        <div class="proj-main">
+          <h3>Meme Mirror</h3>
+          <p class="pdesc">Real-time computer vision: the webcam reads hand gestures and facial
+          expressions via MediaPipe and pops the matching meme in a second window. Custom geometry
+          rules catch poses the stock model can't, with majority-vote smoothing to beat landmark jitter.</p>
+          <div class="tags">
+            <span class="tag acc">Computer Vision</span><span class="tag">Python</span>
+            <span class="tag">MediaPipe</span><span class="tag">OpenCV</span><span class="tag">NumPy</span>
+          </div>
+        </div>
+        <a class="proj-link" href="https://github.com/umaarmirzaa/meme-mirror" target="_blank" rel="noopener">view source →</a>
+      </div>
+    </article>
+
+    <article class="proj-card" data-letter="T" data-reveal>
+      <div class="proj-body">
+        <div class="proj-idx">02 / 05</div>
+        <div class="proj-main">
+          <h3>Tech Stack Recommender</h3>
+          <p class="pdesc">Content-based recommendation engine mapping a user's technical skills
+          to ranked career paths. TF-IDF vectorization and cosine similarity implemented from
+          scratch — no external libraries — with cold-start handling and top-3 ranked output.</p>
+          <div class="tags">
+            <span class="tag acc">Machine Learning</span><span class="tag">Python</span>
+            <span class="tag">TF-IDF</span><span class="tag">Cosine Similarity</span><span class="tag">Zero Dependencies</span>
+          </div>
+        </div>
+        <a class="proj-link" href="https://github.com/umaarmirzaa/tech-stack-recommender" target="_blank" rel="noopener">view source →</a>
+      </div>
+    </article>
+
+    <article class="proj-card" data-letter="L" data-reveal>
+      <div class="proj-body">
+        <div class="proj-idx">03 / 05</div>
+        <div class="proj-main">
+          <h3>Library Management System</h3>
+          <p class="pdesc">A library system built in Python to demonstrate core object-oriented
+          design — encapsulated classes for books, members and loans behind a clean
+          menu-driven interface. Written to make the OOP fundamentals load-bearing, not
+          decorative.</p>
+          <div class="tags">
+            <span class="tag acc">OOP</span><span class="tag">Python</span>
+            <span class="tag">CLI</span><span class="tag">Data Modeling</span>
+          </div>
+        </div>
+        <a class="proj-link" href="https://github.com/umaarmirzaa/python-fundamentals/tree/main/08-library-management" target="_blank" rel="noopener">view source →</a>
+      </div>
+    </article>
+
+    <article class="proj-card" data-letter="P" data-reveal>
+      <div class="proj-body">
+        <div class="proj-idx">04 / 05</div>
+        <div class="proj-main">
+          <h3>Python Image Processor</h3>
+          <p class="pdesc">Image-processing toolkit: filters, transforms and pixel-level
+          operations built in Python. Ties directly into the image-processing coursework —
+          the same theory, applied on real images instead of slides.</p>
+          <div class="tags">
+            <span class="tag acc">Image Processing</span><span class="tag">Python</span><span class="tag">Pixels &amp; Filters</span>
+          </div>
+        </div>
+        <a class="proj-link" href="https://github.com/umaarmirzaa/python-fundamentals/tree/main/07-image-processor" target="_blank" rel="noopener">view source →</a>
+      </div>
+    </article>
+
+    <article class="proj-card" data-letter="S" data-reveal>
+      <div class="proj-body">
+        <div class="proj-idx">05 / 05</div>
+        <div class="proj-main">
+          <h3>Supermarket Database System</h3>
+          <p class="pdesc">Relational schema for a supermarket — workers, managers, cashiers,
+          members, products, sales and receipts. Models an IS-A staff hierarchy, weak entities,
+          self-joins and many-to-many relationships, with sample data and example queries.
+          <code>Transaction</code> became <code>Sale</code> because the original name collided
+          with a reserved SQL keyword.</p>
+          <div class="tags">
+            <span class="tag acc">Databases</span><span class="tag">SQL</span>
+            <span class="tag">Schema Design</span><span class="tag">ER Modeling</span>
+          </div>
+        </div>
+        <a class="proj-link" href="https://github.com/umaarmirzaa/supermarket-management-system" target="_blank" rel="noopener">view source →</a>
+      </div>
+    </article>
+
+  </div>
+
+  <div class="grouprow more-block" data-reveal><span class="idx">More on GitHub</span><span class="rule"></span><span class="path">Experiments &amp; coursework</span></div>
+  <div class="more-grid" data-reveal>
+    <a class="mini" href="https://github.com/umaarmirzaa/bytebot-chatbot" target="_blank" rel="noopener">
+      <div class="mname">bytebot-chatbot</div><div class="mdesc">Rule-based intent matching on an IPO model. Built at DecodeLabs.</div><span class="marrow">↗ repo</span>
+    </a>
+    <a class="mini" href="https://github.com/umaarmirzaa/python-fundamentals/tree/main/06-maze-solver" target="_blank" rel="noopener">
+      <div class="mname">maze-solver</div><div class="mdesc">Recursive depth-first search over a grid graph.</div><span class="marrow">↗ repo</span>
+    </a>
+    <a class="mini" href="https://github.com/umaarmirzaa/python-fundamentals/tree/main/05-duel-simulator" target="_blank" rel="noopener">
+      <div class="mname">duel-simulator</div><div class="mdesc">Turn-based state machine across interacting classes.</div><span class="marrow">↗ repo</span>
+    </a>
+    <a class="mini" href="https://github.com/umaarmirzaa/iris-classification-ai" target="_blank" rel="noopener">
+      <div class="mname">iris-classification-ai</div><div class="mdesc">End-to-end scikit-learn classification pipeline.</div><span class="marrow">↗ repo</span>
+    </a>
+    <a class="mini" href="https://github.com/umaarmirzaa/python-fundamentals" target="_blank" rel="noopener">
+      <div class="mname">python-fundamentals</div><div class="mdesc">Nine projects, syntax through OOP, recursion and graph search.</div><span class="marrow">↗ repo</span>
+    </a>
+    <a class="mini" href="https://github.com/umaarmirzaa?tab=repositories" target="_blank" rel="noopener">
+      <div class="mname">all repositories →</div><div class="mdesc">Everything public, including the work not featured here.</div><span class="marrow">↗ github.com/umaarmirzaa</span>
+    </a>
+  </div>
+</section>
+
+<!-- ============ ABOUT ============ -->
+<section id="about" class="wrap wrap-narrow">
+  <div class="sec-head" data-reveal>
+    <div class="eyerow"><span class="idx">02 — About</span><span class="rule"></span><span class="path">Who I am</span></div>
+    <h2 data-scramble>About</h2>
+  </div>
+  <div class="about-bio" data-reveal>
+    <p>Most people learning AI stop at calling the API. I want the layer underneath — why
+    a retrieval pipeline returns the wrong chunk, why an agent loops, what the maths is
+    actually doing. That's the part I keep chasing.</p>
+    <p>I'm a Data Science &amp; AI student at Leiden University, also in the Honours
+    Programme. Right now I'm interning remotely at <b>flyrank.ai</b>, working on retrieval
+    pipelines, after a first internship at <b>DecodeLabs</b>. Alongside coursework I run a
+    structured AI-engineering track of my own — building an LLM from scratch, RAG over my
+    own notes, and a few smaller things that exist mainly because I wanted to know how they
+    worked.</p>
+    <p>Everything on this page is built rather than described. That's deliberate.</p>
+  </div>
+
+  <div class="grouprow" data-reveal style="margin-top:64px"><span class="idx">Currently</span><span class="rule"></span><span class="path">Updated Jul 2026</span></div>
+  <div class="about-bio" data-reveal>
+    <p>Interning at flyrank.ai on retrieval pipelines. Working through the AI-engineering
+    roadmap at an hour a day — currently on transformers from first principles. Rebuilding
+    this site. Resitting Algorithms &amp; Data Structures, and treating it as a reason to
+    learn the material properly rather than pass it.</p>
+  </div>
+</section>
+
+<!-- ============ EDUCATION ============ -->
+<section id="education" class="wrap wrap-narrow">
+  <div class="sec-head" data-reveal>
+    <div class="eyerow"><span class="idx">03 — Education</span><span class="rule"></span><span class="path">Leiden · LIACS</span></div>
+    <h2 data-scramble>Education</h2>
+  </div>
+  <div class="edu-item" data-reveal>
+    <div class="what">BSc Data Science &amp; AI <span class="badge acc">Year 2</span></div>
+    <div class="where">Leiden University, Netherlands</div>
+    <div class="meta">+ Honours Programme</div>
+  </div>
+  <div class="edu-item" data-reveal>
+    <div class="what">Certifications</div>
+    <ul class="cert-list" style="margin-top:8px">
+      <li><span>Google AI Professional Certificate (7 courses)</span><span class="cwhen">Apr 2026</span></li>
+      <li><span>Learn SQL — Codecademy</span><span class="cwhen">Nov 2024</span></li>
+      <li><span>IELTS Academic — Band 8.5 (C1)</span><span class="cwhen">2024</span></li>
+    </ul>
+  </div>
+  <div class="edu-item" data-reveal>
+    <div class="what">Languages</div>
+    <div class="where">English (C1) · Urdu (native) · Dutch (learning)</div>
+  </div>
+</section>
+
+<!-- ============ EXPERIENCE ============ -->
+<section id="experience" class="wrap">
+  <div class="sec-head" data-reveal>
+    <div class="eyerow"><span class="idx">04 — Experience</span><span class="rule"></span><span class="path">Chronological</span></div>
+    <h2 data-scramble>Experience</h2>
+  </div>
+  <div class="timeline">
+    <div class="t-item live" data-reveal>
+      <div class="term">
+        <div class="term-body">
+          <div class="t-content">
+            <div class="t-when">Jul 2026 — Present <span class="badge acc">Active</span></div>
+            <h3>Backend AI Engineering Intern</h3>
+            <div class="t-org">flyrank.ai · Remote</div>
+            <p class="t-desc">Working on Retrieval-Augmented Generation and backend AI systems —
+            RAG architecture, vector databases, chunking strategies, and retrieval pipelines.
+            Treating it as an engineering deep-dive: the goal is depth, vocabulary, and
+            concrete output.</p>
+            <div class="tags"><span class="tag acc">RAG</span><span class="tag">LLM Pipelines</span><span class="tag">Vector DBs</span><span class="tag">Python</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="t-item live" data-reveal>
+      <div class="term">
+        <div class="term-body">
+          <div class="t-content">
+            <div class="t-when">Apr 2026 — Present <span class="badge acc">Active</span></div>
+            <h3>Research Participant — AI &amp; Behavioural Science</h3>
+            <div class="t-org">Prolific · Remote</div>
+            <p class="t-desc">Contributing to academic studies in AI, behavioural science and user
+            research — hands-on exposure to experimental design and survey methodology in AI/HCI.</p>
+            <div class="tags"><span class="tag">Research Design</span><span class="tag">AI / HCI</span><span class="tag">Behavioural Science</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="t-item live" data-reveal>
+      <div class="term">
+        <div class="term-body">
+          <div class="t-content">
+            <div class="t-when">Nov 2024 — Present <span class="badge acc">Active</span></div>
+            <h3>Ambassador &amp; Writer</h3>
+            <div class="t-org">VoiceBox · Remote</div>
+            <p class="t-desc">Publishing original writing for a global audience — the communication
+            muscle behind good technical documentation.</p>
+            <div class="tags"><span class="tag">Writing</span><span class="tag">Communication</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SKILLS ============ -->
+<section id="skills" class="wrap">
+  <div class="sec-head" data-reveal>
+    <div class="eyerow"><span class="idx">05 — Skills</span><span class="rule"></span><span class="path">By domain</span></div>
+    <h2 data-scramble>Skills</h2>
+  </div>
+  <div class="skills-grid" data-reveal>
+    <div class="skill-box">
+      <div class="sb-head"><span>Programming</span><span>[core]</span></div>
+      <div class="sb-body">
+        <span class="tag">Python</span><span class="tag">SQL</span><span class="tag">SQLite</span><span class="tag">Git</span>
+      </div>
+    </div>
+    <div class="skill-box">
+      <div class="sb-head"><span>AI / ML</span><span>[focus]</span></div>
+      <div class="sb-body">
+        <span class="tag acc">LLM Applications</span><span class="tag acc">Agentic AI Systems</span>
+        <span class="tag">Prompt Engineering</span><span class="tag">NumPy</span>
+        <span class="tag">Supervised Learning</span><span class="tag">Unsupervised Learning</span>
+        <span class="tag">MediaPipe</span><span class="tag">OpenCV</span>
+      </div>
+    </div>
+    <div class="skill-box">
+      <div class="sb-head"><span>CS Foundations</span><span>[theory]</span></div>
+      <div class="sb-body">
+        <span class="tag">Algorithms &amp; Data Structures</span><span class="tag">OOP</span>
+        <span class="tag">Relational Databases</span><span class="tag">Image Processing</span>
+        <span class="tag">Graph Theory</span><span class="tag">Calculus I–III</span>
+        <span class="tag">Linear Algebra</span><span class="tag">Discrete Mathematics</span>
+        <span class="tag">Probability &amp; Statistics</span>
+      </div>
+    </div>
+    <div class="skill-box">
+      <div class="sb-head"><span>Tooling</span><span>[daily]</span></div>
+      <div class="sb-body">
+        <span class="tag acc">Claude Code</span><span class="tag">AI-assisted Development</span>
+        <span class="tag">Jupyter</span><span class="tag">VS Code</span>
+      </div>
+    </div>
+  </div>
+  <div class="loading-row" data-reveal>
+    <span class="lbl">▸ currently loading</span>
+    <span>RAG architectures · vector databases · retrieval pipelines · LLM evaluation</span>
+    <span class="bar"><i></i></span>
+  </div>
+</section>
+
+<!-- ============ READING ============ -->
+<section id="reading" class="wrap wrap-narrow">
+  <div class="sec-head" data-reveal>
+    <div class="eyerow"><span class="idx">06 — Reading</span><span class="rule"></span><span class="path">Currently on the desk</span></div>
+    <h2 data-scramble>Reading</h2>
+  </div>
+  <div class="term" data-reveal>
+    <div class="term-body">
+    <div class="t-content">
+
+    <div class="read-item">
+      <div class="r-status"><span class="st reading">Reading</span><span class="rtype">Book</span></div>
+      <div class="r-main">
+        <div class="rtitle">Build a Large Language Model (From Scratch)</div>
+        <div class="rby">Sebastian Raschka — working through the code, not just the chapters</div>
+      </div>
+      <a class="r-link" href="https://github.com/rasbt/LLMs-from-scratch" target="_blank" rel="noopener">source →</a>
+    </div>
+
+    <div class="read-item">
+      <div class="r-status"><span class="st reading">Reading</span><span class="rtype">Paper</span></div>
+      <div class="r-main">
+        <div class="rtitle">Attention Is All You Need</div>
+        <div class="rby">Vaswani et al., 2017 — the transformer paper, annotated slowly</div>
+      </div>
+      <a class="r-link" href="https://arxiv.org/abs/1706.03762" target="_blank" rel="noopener">arxiv →</a>
+    </div>
+
+    <div class="read-item">
+      <div class="r-status"><span class="st done">Done</span><span class="rtype">Essay</span></div>
+      <div class="r-main">
+        <div class="rtitle">The Illustrated Transformer</div>
+        <div class="rby">Jay Alammar — the visual companion that made the paper readable</div>
+      </div>
+      <a class="r-link" href="https://jalammar.github.io/illustrated-transformer/" target="_blank" rel="noopener">read →</a>
+    </div>
+
+    <div class="read-item">
+      <div class="r-status"><span class="st">Queued</span><span class="rtype">Lecture</span></div>
+      <div class="r-main">
+        <div class="rtitle">Let's Build GPT: From Scratch, In Code</div>
+        <div class="rby">Andrej Karpathy — 4 hours, to be watched across multiple sessions</div>
+      </div>
+      <a class="r-link" href="https://www.youtube.com/watch?v=kCc8FmEb1nY" target="_blank" rel="noopener">watch →</a>
+    </div>
+
+    <div class="read-item">
+      <div class="r-status"><span class="st">Queued</span><span class="rtype">Paper</span></div>
+      <div class="r-main">
+        <div class="rtitle">Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks</div>
+        <div class="rby">Lewis et al., 2020 — the RAG paper, directly relevant to flyrank work</div>
+      </div>
+      <a class="r-link" href="https://arxiv.org/abs/2005.11401" target="_blank" rel="noopener">arxiv →</a>
+    </div>
+
+    <div class="read-item">
+      <div class="r-status"><span class="st">Queued</span><span class="rtype">Paper</span></div>
+      <div class="r-main">
+        <div class="rtitle">DSPy: Compiling Declarative Language Model Calls</div>
+        <div class="rby">Khattab et al., 2023 — programmatic prompting, beyond prompt strings</div>
+      </div>
+      <a class="r-link" href="https://arxiv.org/abs/2310.03714" target="_blank" rel="noopener">arxiv →</a>
+    </div>
+
+    </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CONTACT ============ -->
+<section id="contact" class="wrap">
+  <div class="sec-head" data-reveal>
+    <div class="eyerow"><span class="idx">07 — Let's connect</span><span class="rule"></span><span class="path">Open to talk</span></div>
+    <h2 data-scramble>Let's connect</h2>
+  </div>
+  <div class="contact-grid">
+    <div class="term" data-reveal>
+      <div class="term-body">
+      <div class="t-content">
+      <div class="big-cta">Got an interesting<br>problem? <em>Let's talk.</em></div>
+      <div class="contact-links">
+        <div class="c-row"><span class="k">Email</span><a href="mailto:umaarmirzaa@gmail.com">umaarmirzaa@gmail.com</a></div>
+        <div class="c-row"><span class="k">GitHub</span><a href="https://github.com/umaarmirzaa" target="_blank" rel="noopener">github.com/umaarmirzaa</a></div>
+        <div class="c-row"><span class="k">LinkedIn</span><a href="https://linkedin.com/in/umaarmirzaa" target="_blank" rel="noopener">linkedin.com/in/umaarmirzaa</a></div>
+      </div>
+      </div>
+      </div>
+    </div>
+    <div class="term" data-reveal>
+      <div class="term-body">
+        <form class="cform" id="cform">
+          <label><span class="q">[?]</span> what is your name?</label>
+          <input type="text" id="cf-name" placeholder="ada lovelace" required>
+          <label><span class="q">[?]</span> what is your email?</label>
+          <input type="email" id="cf-email" placeholder="you@somewhere.com" required>
+          <label><span class="q">[?]</span> what is the mission?</label>
+          <textarea id="cf-msg" rows="4" placeholder="describe the problem worth solving…" required></textarea>
+          <button type="submit">send mission →</button>
+          <p class="micro">Opens your email app to send.</p>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="dock-wrap">
+    <div class="dock" role="navigation" aria-label="social links">
+      <a href="https://github.com/umaarmirzaa" target="_blank" rel="noopener" aria-label="GitHub" title="GitHub">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+      </a>
+      <a href="https://x.com/umaarmirzaa" target="_blank" rel="noopener" aria-label="X" title="X">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4l16 16M20 4L4 20"/></svg>
+      </a>
+      <a href="https://linkedin.com/in/umaarmirzaa" target="_blank" rel="noopener" aria-label="LinkedIn" title="LinkedIn">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-13h4v1.5A6 6 0 0 1 16 8z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+      </a>
+      <a href="mailto:umaarmirzaa@gmail.com" aria-label="Email" title="Email">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 6l-10 7L2 6"/></svg>
+      </a>
+    </div>
+  </div>
+  <div class="foot-col">
+    <b>© 2026 Umar Mirza</b><br>
+    Leiden, Netherlands · <span id="footclock">--:--:--</span>
+  </div>
+  <div class="foot-col foot-right">
+    <span class="foot-status"><span class="fdot"></span> open to AI / ML internships</span>
+  </div>
+</footer>
+
+</div><!-- /site -->
+
+<!-- ============ COMMAND PALETTE ============ -->
+<div class="cmdk" id="cmdk">
+  <div class="cmdk-box">
+    <input type="text" id="cmdk-input" placeholder="type a command… (esc to close)" autocomplete="off">
+    <div class="cmdk-list" id="cmdk-list"></div>
+  </div>
+</div>
+
+<script src="portrait-dots.js"></script>
+<script>
+/* ============================================================
+   DOT PORTRAIT — nodes fly in from outside, converge to face
+   ============================================================ */
+(function(){
+  const canvas = document.getElementById('portrait');
+  if(!canvas || typeof PORTRAIT_DOTS === 'undefined') return;
+  const ctx = canvas.getContext('2d');
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const INK = '237,237,239';          // portrait draws light-on-dark
+  // resting state is deliberately dim — the portrait is texture, not a headline.
+  // hover lifts it toward full brightness.
+  const DOT_A = 0.42, DOT_HOT = 0.95;
+  const EDGE_A = 0.07, EDGE_HOT = 0.34;
+  const GLOW_R = 90;                  // px radius of the pointer's influence
+  let DPR = Math.min(devicePixelRatio||1, 2);
+  let W=0, H=0, pad=0, started=false, finished=false, t0=0;
+  let px=-1, py=-1;                   // pointer, canvas-local (-1 = away)
+  // obsidian timelapse: nodes populate first, then edges knit in slowly after
+  const BUILD_MS = 1600, SCATTER_MS = 500, POP_MS = 440;      // node reveal
+  const EDGE_DELAY = 500, EDGE_SCATTER = 2600, EDGE_MS = 650;  // edge grow, lags nodes
+  const dots = [];       // {tx,ty, x,y, sx,sy, r, acc, ph, delay, dur}
+  let edges = [];        // [i,j]
+
+  function seed(){
+    const cssW = canvas.clientWidth || canvas.parentElement.clientWidth || 360;
+    W = cssW;
+    H = Math.round(cssW * PORTRAIT_ASPECT);
+    pad = Math.round(W * 0.06);
+    canvas.width = W*DPR; canvas.height = H*DPR;
+    canvas.style.height = H+'px';
+    ctx.setTransform(DPR,0,0,DPR,0,0);
+
+    const iw = W - pad*2, ih = H - pad*2;
+    dots.length = 0;
+    const maxD = Math.hypot(W,H)/2;
+    for(let k=0;k<PORTRAIT_DOTS.length;k++){
+      const d = PORTRAIT_DOTS[k];
+      const tx = pad + d[0]*iw;
+      const ty = pad + d[1]*ih;
+      const wgt = d[2];
+      // obsidian graph-view build: each node pops in at its spot, staggered
+      // center-out so the face assembles from the middle, edges snap in after.
+      const dcen = Math.hypot(tx - W/2, ty - H/2);
+      dots.push({
+        tx, ty, _p:0,
+        r: 0.7 + wgt*1.9,
+        ax: (dcen/maxD)*BUILD_MS + Math.random()*SCATTER_MS  // appear time
+      });
+    }
+    buildEdges();
+  }
+
+  function buildEdges(){
+    // spatial hash for near-neighbour edges (once)
+    edges = [];
+    const cell = Math.max(10, W*0.05);
+    const grid = new Map();
+    const key = (cx,cy)=>cx+','+cy;
+    dots.forEach((d,i)=>{
+      const gx=Math.floor(d.tx/cell), gy=Math.floor(d.ty/cell);
+      const kk=key(gx,gy); if(!grid.has(kk)) grid.set(kk,[]); grid.get(kk).push(i);
+    });
+    const R = cell*0.95, R2=R*R, MAXE=2200;
+    for(let i=0;i<dots.length && edges.length<MAXE;i++){
+      const a=dots[i], gx=Math.floor(a.tx/cell), gy=Math.floor(a.ty/cell);
+      let made=0;
+      for(let ox=-1;ox<=1 && made<2;ox++)for(let oy=-1;oy<=1 && made<2;oy++){
+        const arr=grid.get(key(gx+ox,gy+oy)); if(!arr) continue;
+        for(const j of arr){
+          if(j<=i) continue;
+          const b=dots[j], dx=a.tx-b.tx, dy=a.ty-b.ty, dd=dx*dx+dy*dy;
+          if(dd<R2 && dd>1){
+            const ea = Math.max(a.ax, b.ax) + EDGE_DELAY + Math.random()*EDGE_SCATTER;
+            edges.push({i, j, ea}); if(++made>=2) break;
+          }
+        }
+      }
+    }
+  }
+
+  function frame(now){
+    if(!t0) t0=now;
+    const t = now - t0;
+    ctx.clearRect(0,0,W,H);
+    let done = true;
+
+    // each node fades+grows in once its appear time passes
+    for(const d of dots){
+      const p = d.ax > t ? 0 : Math.min(1, (t - d.ax)/POP_MS);
+      d._p = p*(2-p);                 // ease-out
+      if(p < 1) done = false;
+    }
+
+    // edges grow in one by one, each lagging its nodes — slow knit
+    ctx.lineWidth = 0.6;
+    for(const ed of edges){
+      const ep = ed.ea > t ? 0 : Math.min(1, (t - ed.ea)/EDGE_MS);
+      if(ep < 1) done = false;
+      if(ep <= 0) continue;
+      const a=dots[ed.i], b=dots[ed.j], p = ep*(2-ep);   // ease-out extend
+      const mx = a.tx+(b.tx-a.tx)*p, my = a.ty+(b.ty-a.ty)*p;
+      ctx.strokeStyle = `rgba(${INK},${EDGE_A*Math.min(1,p*2)})`;
+      ctx.beginPath(); ctx.moveTo(a.tx,a.ty); ctx.lineTo(mx,my); ctx.stroke();
+    }
+
+    // dots
+    for(const d of dots){
+      if(d._p <= 0) continue;
+      ctx.beginPath();
+      ctx.fillStyle = `rgba(${INK},${d._p*DOT_A})`;
+      ctx.arc(d.tx, d.ty, d.r*(0.4+0.6*d._p), 0, Math.PI*2);
+      ctx.fill();
+    }
+
+    if(done){ finished = true; paint(); return; }   // settle, then hand over to hover
+    requestAnimationFrame(frame);
+  }
+
+  /* Final-state repaint. Dots and edges within GLOW_R of the pointer lift
+     toward full brightness, falling off smoothly — the face "wakes" under
+     the cursor. Called on pointer move and once when the build settles. */
+  function paint(){
+    if(!finished) return;
+    const hot = px >= 0;
+    ctx.clearRect(0,0,W,H);
+    const boost = (x,y) => {
+      if(!hot) return 0;
+      const dx = x-px, dy = y-py, d2 = dx*dx + dy*dy;
+      if(d2 > GLOW_R*GLOW_R) return 0;
+      const f = 1 - Math.sqrt(d2)/GLOW_R;
+      return f*f;                                   // quadratic falloff
+    };
+    ctx.lineWidth = 0.6;
+    for(const ed of edges){
+      const a=dots[ed.i], b=dots[ed.j];
+      const g = Math.max(boost(a.tx,a.ty), boost(b.tx,b.ty));
+      ctx.strokeStyle = `rgba(${INK},${EDGE_A + g*(EDGE_HOT-EDGE_A)})`;
+      ctx.beginPath(); ctx.moveTo(a.tx,a.ty); ctx.lineTo(b.tx,b.ty); ctx.stroke();
+    }
+    for(const d of dots){
+      const g = boost(d.tx,d.ty);
+      ctx.beginPath();
+      ctx.fillStyle = `rgba(${INK},${DOT_A + g*(DOT_HOT-DOT_A)})`;
+      ctx.arc(d.tx, d.ty, d.r*(1 + g*0.5), 0, Math.PI*2);
+      ctx.fill();
+    }
+  }
+
+  function start(){
+    if(started) return; started=true;
+    finished = false;
+    seed();
+    if(reduced){ finished = true; paint(); return; }   // no build animation
+    t0=0; requestAnimationFrame(frame);
+  }
+
+  if(!reduced){
+    let queued = false;
+    canvas.addEventListener('pointermove', e => {
+      if(!finished) return;
+      const r = canvas.getBoundingClientRect();
+      px = e.clientX - r.left; py = e.clientY - r.top;
+      if(queued) return;                               // coalesce to one paint per frame
+      queued = true;
+      requestAnimationFrame(()=>{ queued = false; paint(); });
+    });
+    canvas.addEventListener('pointerleave', ()=>{ px = py = -1; paint(); });
+  }
+
+  const io = new IntersectionObserver(es=>{
+    if(es[0].isIntersecting){ io.disconnect(); start(); }
+  }, {threshold:0.25});
+  io.observe(canvas);
+  // safety: same as the scroll-reveal fallback — never leave the portrait
+  // blank if the observer misfires (background tab, non-compositing frame)
+  addEventListener('load', ()=>setTimeout(()=>{
+    if(started) return;
+    const r = canvas.getBoundingClientRect();
+    if(r.top < innerHeight && r.bottom > 0){ io.disconnect(); start(); }
+  }, 400));
+
+  let rT; addEventListener('resize', ()=>{ if(!started) return; clearTimeout(rT); rT=setTimeout(()=>{ started=false; start(); },250); });
+})();
+
+/* ============================================================
+   PIXEL BLAST + GRAPH — dithered value-noise pixel field (PixelBlast
+   vibe, ported to vanilla canvas — the site has no bundler/three), with
+   a subset of grid cells promoted to graph nodes: nearest-neighbour
+   edges, data pulses, click spawns a graph-connection wave (links grow
+   node-to-node outward), cursor lights nearby nodes.
+   ponytail: 2D-canvas approximation of the WebGL shader — no three/
+   postprocessing dep. Swap in real PixelBlast only if a build step lands.
+   ============================================================ */
+(function(){
+  const canvas = document.getElementById('neurons');
+  const ctx = canvas.getContext('2d');
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const INK = '237,237,239';          // field draws light-on-dark
+  const HOT = '255,255,255';          // "accent" = brighter white, not a hue
+  const PX = 9;               // logical pixel-cell size
+  const SCALE = 0.055;        // noise frequency
+  const THRESH = 0.56;        // higher = sparser field
+  let W, H, cols, rows, nodes = [], edges = [], pulses = [], bursts = [];
+  const mouse = {x:-9999, y:-9999, on:false};
+  const rand = (a,b) => a + Math.random()*(b-a);
+  const TAU = Math.PI*2;
+  // 4x4 Bayer dither matrix, normalised to [0,1)
+  const BAYER = [0,8,2,10,12,4,14,6,3,11,1,9,15,7,13,5].map(v=>v/16);
+
+  const hash = (x,y) => { const s = Math.sin(x*127.1 + y*311.7)*43758.5453; return s - Math.floor(s); };
+  function vnoise(x,y){
+    const xi=Math.floor(x), yi=Math.floor(y), xf=x-xi, yf=y-yi;
+    const u=xf*xf*(3-2*xf), v=yf*yf*(3-2*yf);
+    const a=hash(xi,yi), b=hash(xi+1,yi), c=hash(xi,yi+1), d=hash(xi+1,yi+1);
+    return a+(b-a)*u+(c-a)*v+(a-b-c+d)*u*v;
+  }
+  function fbm(x,y,t){
+    let f=0, amp=0.5, fr=1;
+    for(let i=0;i<3;i++){ f += amp*vnoise(x*fr + t, y*fr - t*0.6); fr*=2.0; amp*=0.5; }
+    return f;
+  }
+
+  function build(){
+    W = innerWidth; H = innerHeight;
+    canvas.width = W; canvas.height = H;              // DPR 1 → crisp pixels
+    canvas.style.width = W+'px'; canvas.style.height = H+'px';
+    ctx.setTransform(1,0,0,1,0,0);
+    cols = Math.ceil(W/PX); rows = Math.ceil(H/PX);
+
+    // promote a scattered subset of grid cells to graph nodes
+    const count = Math.max(64, Math.min(160, Math.round(W*H/13000)));
+    nodes = [];
+    for(let i=0;i<count;i++){
+      const gx = (Math.random()*cols)|0, gy = (Math.random()*rows)|0;
+      const x = gx*PX + PX/2, y = gy*PX + PX/2;
+      nodes.push({bx:x, by:y, cx:x, cy:y,
+        ph:rand(0,TAU), amp:rand(3,8), spd:rand(0.00018,0.0006), ex:0});
+    }
+    edges = [];
+    const R2 = 285*285;
+    for(let i=0;i<nodes.length;i++){
+      const cand = [];
+      for(let j=0;j<nodes.length;j++){
+        if(i===j) continue;
+        const dx=nodes[i].bx-nodes[j].bx, dy=nodes[i].by-nodes[j].by, d=dx*dx+dy*dy;
+        if(d<R2) cand.push([d,j]);
+      }
+      cand.sort((a,b)=>a[0]-b[0]);
+      for(let k=0;k<Math.min(4,cand.length);k++){ const j=cand[k][1]; if(j>i) edges.push([i,j]); }
+    }
+    pulses = []; bursts = [];
+  }
+
+  function drawField(t){
+    const now = t*0.001;
+    const base = new Path2D();
+    for(let gy=0; gy<rows; gy++){
+      for(let gx=0; gx<cols; gx++){
+        const feed = fbm(gx*SCALE, gy*SCALE, now*0.25);
+        const dith = feed + (BAYER[(gy&3)*4 + (gx&3)] - 0.5)*0.55;
+        if(dith > THRESH) base.rect(gx*PX+1, gy*PX+1, PX-2, PX-2);
+      }
+    }
+    ctx.fillStyle = `rgba(${INK},0.15)`; ctx.fill(base);
+  }
+
+  // graph-connection wave: links grow node-to-node outward from a point.
+  // click = wide + long-lived, cursor move = small + quick (per-burst params).
+  function drawBursts(now){
+    bursts = bursts.filter(b => now - b.t0 < b.life);
+    for(const b of bursts){
+      const age = now - b.t0, waveR = b.speed*age;
+      for(let i=0;i<nodes.length;i++){
+        if(b.set.has(i)) continue;
+        const d = Math.hypot(nodes[i].bx-b.x, nodes[i].by-b.y);
+        if(d<=waveR && d<=b.maxr){
+          let p=-1, best=1e9;
+          for(const j of b.set){ const dj=Math.hypot(nodes[i].bx-nodes[j].bx, nodes[i].by-nodes[j].by); if(dj<best){best=dj;p=j;} }
+          b.set.add(i); b.links.push({p, c:i, born:age});
+          nodes[i].ex = Math.max(nodes[i].ex, 0.95);   // pop the node/pixel
+        }
+      }
+      for(const lk of b.links){
+        const fade = Math.max(0, 1 - (age - lk.born)/(b.life*0.7));
+        if(fade<=0) continue;
+        const grow = Math.min(1, (age - lk.born)/b.grow);
+        const from = lk.p<0 ? {cx:b.x, cy:b.y} : nodes[lk.p];
+        const to = nodes[lk.c];
+        const ex = from.cx+(to.cx-from.cx)*grow, ey = from.cy+(to.cy-from.cy)*grow;
+        ctx.strokeStyle=`rgba(${HOT},${0.85*fade})`; ctx.lineWidth=1.4;
+        ctx.beginPath(); ctx.moveTo(from.cx,from.cy); ctx.lineTo(ex,ey); ctx.stroke();
+        if(grow>=1){ ctx.fillStyle=`rgba(${HOT},${0.9*fade})`; ctx.fillRect(to.cx-2.5,to.cy-2.5,5,5); }
+      }
+    }
+  }
+
+  function frame(t){
+    if(document.hidden){ requestAnimationFrame(frame); return; }
+    ctx.clearRect(0,0,W,H);
+    drawField(t);
+
+    // node motion + cursor excitation
+    for(const n of nodes){
+      n.cx = n.bx + Math.cos(t*n.spd + n.ph)*n.amp;
+      n.cy = n.by + Math.sin(t*n.spd*0.9 + n.ph)*n.amp;
+      let tg = 0;
+      if(mouse.on){ const d = Math.hypot(n.cx-mouse.x, n.cy-mouse.y); if(d<200) tg = 1 - d/200; }
+      n.ex += (tg - n.ex)*0.08;
+    }
+
+    // edges — one batched path
+    ctx.strokeStyle = `rgba(${INK},0.17)`; ctx.lineWidth = 1;
+    ctx.beginPath();
+    for(const e of edges){ const a=nodes[e[0]], b=nodes[e[1]]; ctx.moveTo(a.cx,a.cy); ctx.lineTo(b.cx,b.cy); }
+    ctx.stroke();
+
+    // pulses along edges
+    if(edges.length && pulses.length<6 && Math.random()<0.06)
+      pulses.push({e:edges[(Math.random()*edges.length)|0], t:0, sp:rand(0.006,0.014)});
+    for(let k=pulses.length-1;k>=0;k--){
+      const pl = pulses[k]; pl.t += pl.sp;
+      if(pl.t>=1){ pulses.splice(k,1); continue; }
+      const a=nodes[pl.e[0]], b=nodes[pl.e[1]];
+      const x=a.cx+(b.cx-a.cx)*pl.t, y=a.cy+(b.cy-a.cy)*pl.t, f=Math.sin(pl.t*Math.PI);
+      ctx.fillStyle=`rgba(${HOT},${0.7*f})`; ctx.fillRect(x-1.5, y-1.5, 3, 3);
+    }
+
+    // click-driven graph-connection waves
+    drawBursts(t*0.001);
+
+    // nodes as darker pixels (+ cursor link when excited)
+    for(const n of nodes){
+      const ex = n.ex, s = PX-2 + ex*3;
+      ctx.fillStyle = ex>0.03 ? `rgba(${HOT},${0.4+ex*0.55})` : `rgba(${INK},0.68)`;
+      ctx.fillRect(n.cx - s/2, n.cy - s/2, s, s);
+      if(ex>0.06){
+        ctx.beginPath(); ctx.strokeStyle=`rgba(${INK},${ex*0.28})`; ctx.lineWidth=0.7;
+        ctx.moveTo(n.cx,n.cy); ctx.lineTo(mouse.x,mouse.y); ctx.stroke();
+      }
+    }
+    requestAnimationFrame(frame);
+  }
+
+  const spawnBurst = (x,y,cfg) => bursts.push({x, y, t0:performance.now()*0.001,
+    set:new Set(), links:[], ...cfg});
+
+  // cursor move: small tight web, fires only every MOVE_STEP px so it trails
+  // the pointer instead of flooding one burst per mousemove event.
+  const MOVE_STEP = 95;
+  let lastBx=-9999, lastBy=-9999;
+  addEventListener('mousemove', e => {
+    mouse.on=true; mouse.x=e.clientX; mouse.y=e.clientY;
+    if(Math.hypot(e.clientX-lastBx, e.clientY-lastBy) < MOVE_STEP) return;
+    lastBx=e.clientX; lastBy=e.clientY;
+    if(bursts.length < 14) spawnBurst(e.clientX, e.clientY, {speed:380, maxr:130, life:1.0, grow:0.16});
+  });
+  document.addEventListener('mouseleave', () => { mouse.on=false; mouse.x=mouse.y=-9999; });
+  // click: reaches much further, lingers
+  addEventListener('pointerdown', e => spawnBurst(e.clientX, e.clientY, {speed:560, maxr:680, life:3.0, grow:0.22}));
+  let rT; addEventListener('resize', () => { clearTimeout(rT); rT=setTimeout(build,200); });
+
+  build();
+  if(reduced){
+    drawField(0);
+    ctx.strokeStyle=`rgba(${INK},0.12)`; ctx.beginPath();
+    for(const e of edges){ const a=nodes[e[0]], b=nodes[e[1]]; ctx.moveTo(a.bx,a.by); ctx.lineTo(b.bx,b.by); }
+    ctx.stroke();
+    for(const n of nodes){ ctx.fillStyle=`rgba(${INK},0.55)`; ctx.fillRect(n.bx-(PX-2)/2, n.by-(PX-2)/2, PX-2, PX-2); }
+  } else requestAnimationFrame(frame);
+})();
+
+/* ============================================================
+   LIVE CLOCK — Leiden, NL
+   ============================================================ */
+(function(){
+  const fmt = new Intl.DateTimeFormat('en-GB', {
+    timeZone:'Europe/Amsterdam', hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:false
+  });
+  const fel = document.getElementById('footclock');
+  function tick(){ if(fel) fel.textContent = fmt.format(new Date()); }
+  tick(); setInterval(tick, 1000);
+})();
+/* floating nav — hide on scroll down, reveal on scroll up.
+   rAF-throttled so the handler never runs more than once a frame; the 6px
+   deadzone stops trackpad jitter from flapping the bar open and shut. */
+(function(){
+  const bar = document.querySelector('body > nav');
+  if(!bar) return;
+  let last = window.scrollY, ticking = false;
+  const DEADZONE = 6, TOP_SAFE = 80;
+  function update(){
+    const y = window.scrollY;
+    const delta = y - last;
+    if(Math.abs(delta) > DEADZONE){
+      bar.classList.toggle('nav-hidden', delta > 0 && y > TOP_SAFE);
+      last = y;
+    }
+    if(y <= TOP_SAFE) bar.classList.remove('nav-hidden');
+    ticking = false;
+  }
+  window.addEventListener('scroll', () => {
+    if(!ticking){ ticking = true; requestAnimationFrame(update); }
+  }, {passive:true});
+  // keyboard focus must never land on an off-screen bar
+  bar.addEventListener('focusin', () => bar.classList.remove('nav-hidden'));
+})();
+
+/* ============================================================
+   HERO TERMINAL — typing sequence
+   ============================================================ */
+(function(){
+  const host = document.getElementById('hero-term');
+  if(!host) return;   // hero terminal replaced by portrait
+  const seq = [
+    {cmd:'whoami', out:['muhammad-umar-mirza']},
+    {cmd:'ls interests/', out:['llms/  rag-pipelines/  agentic-systems/']},
+    {cmd:'./status --now', out:['[<span style="color:var(--accent)">●</span>] backend-ai-eng intern @ flyrank.ai','[<span style="color:var(--accent)">●</span>] bsc data science &amp; ai — leiden']}
+  ];
+  const cur = '<span class="tcursor"></span>';
+  let html = '';
+  function esc(s){ return s; }
+  async function type(){
+    for(const step of seq){
+      let line = '<span class="prompt">$</span> ';
+      html += '<div class="ln">' + line + cur + '</div>';
+      host.innerHTML = html.replace(/<div class="ln">(?![\s\S]*<div class="ln">)/, '<div class="ln">');
+      // type command chars
+      let typed = '';
+      for(const ch of step.cmd){
+        typed += ch;
+        host.innerHTML = html.slice(0, -("</div>".length + cur.length + line.length + "<div class=\"ln\">".length))
+          + '<div class="ln">' + line + typed + cur + '</div>';
+        await new Promise(r=>setTimeout(r, 34 + Math.random()*40));
+      }
+      html = html.slice(0, html.lastIndexOf('<div class="ln">')) + '<div class="ln">' + line + typed + '</div>';
+      for(const o of step.out){
+        html += '<div class="ln out">' + o + '</div>';
+        host.innerHTML = html + '<div class="ln">' + cur + '</div>';
+        await new Promise(r=>setTimeout(r, 120));
+      }
+      await new Promise(r=>setTimeout(r, 320));
+    }
+    host.innerHTML = html + '<div class="ln"><span class="prompt">$</span> ' + cur + '</div>';
+  }
+  // start when visible
+  const io = new IntersectionObserver(es => {
+    if(es[0].isIntersecting){ io.disconnect(); type(); }
+  });
+  io.observe(host);
+})();
+
+/* ============================================================
+   SCROLL REVEAL (BlurText) + HEADING SCRAMBLE (DecryptedText)
+   ============================================================ */
+(function(){
+  const revEls = document.querySelectorAll('[data-reveal]');
+  // stagger siblings that reveal together — 70ms apart, capped so late
+  // items in a long list don't wait a full second
+  revEls.forEach(el => {
+    const sibs = [...el.parentElement.querySelectorAll(':scope > [data-reveal]')];
+    const i = sibs.indexOf(el);
+    if(i > 0) el.style.transitionDelay = Math.min(i*70, 420) + 'ms';
+  });
+  const io = new IntersectionObserver(entries => {
+    for(const e of entries){
+      if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }
+    }
+  }, {threshold:0.08});
+  revEls.forEach(el => io.observe(el));
+  // safety: never leave on-screen content hidden if the observer misfires
+  function revealVisible(){
+    revEls.forEach(el => {
+      if(el.classList.contains('in')) return;
+      const r = el.getBoundingClientRect();
+      if(r.top < innerHeight*0.98 && r.bottom > 0) el.classList.add('in');
+    });
+  }
+  addEventListener('load', revealVisible);
+  setTimeout(revealVisible, 400);
+
+  const CH = '!<>-_\\/[]{}—=+*^?#01';
+  function scramble(el){
+    const finalText = el.dataset.final || el.textContent;
+    el.dataset.final = finalText;
+    const len = finalText.length;
+    let frame = 0;
+    const total = 26;
+    const iv = setInterval(() => {
+      frame++;
+      let out = '';
+      for(let i=0;i<len;i++){
+        const reveal = (frame/total)*len*1.4;
+        out += i < reveal ? finalText[i] : CH[Math.floor(Math.random()*CH.length)];
+      }
+      el.textContent = out;
+      if(frame >= total){ el.textContent = finalText; clearInterval(iv); }
+    }, 32);
+  }
+  const io2 = new IntersectionObserver(entries => {
+    for(const e of entries){
+      if(e.isIntersecting){ scramble(e.target); io2.unobserve(e.target); }
+    }
+  }, {threshold:0.5});
+  document.querySelectorAll('[data-scramble]').forEach(el => io2.observe(el));
+})();
+
+/* ============================================================
+   TYPED TERMINAL SECTIONS — command types, then content reveals
+   ============================================================ */
+(function(){
+  function typeCmd(el){
+    const cmd = el.dataset.cmd;
+    let i = 0;
+    const iv = setInterval(() => {
+      el.textContent = cmd.slice(0, ++i);
+      if(i >= cmd.length){
+        clearInterval(iv);
+        const t = el.closest('.term');
+        if(t) setTimeout(() => t.classList.add('typed'), 180);
+      }
+    }, 38);
+  }
+  const io = new IntersectionObserver(es => {
+    for(const e of es){
+      if(e.isIntersecting){ typeCmd(e.target); io.unobserve(e.target); }
+    }
+  }, {threshold:0.2});
+  document.querySelectorAll('.type-line').forEach(el => io.observe(el));
+  // safety: reveal any terminal body that never got typed (observer miss / offscreen)
+  setTimeout(() => {
+    document.querySelectorAll('.term:not(.typed)').forEach(t => {
+      const r = t.getBoundingClientRect();
+      if(r.top < innerHeight*0.98 && r.bottom > 0) t.classList.add('typed');
+    });
+  }, 600);
+})();
+
+/* ============================================================
+   STAT COUNTERS
+   ============================================================ */
+(function(){
+  function animate(el){
+    const target = parseFloat(el.dataset.target);
+    const dec = parseInt(el.dataset.dec || '0');
+    const dur = 1300;
+    const t0 = performance.now();
+    function step(t){
+      const p = Math.min(1, (t-t0)/dur);
+      const ease = 1 - Math.pow(1-p, 3);
+      el.textContent = (target*ease).toFixed(dec);
+      if(p < 1) requestAnimationFrame(step);
+      else el.textContent = target.toFixed(dec);
+    }
+    requestAnimationFrame(step);
+  }
+  const io = new IntersectionObserver(entries => {
+    for(const e of entries){
+      if(e.isIntersecting){ animate(e.target); io.unobserve(e.target); }
+    }
+  }, {threshold:0.6});
+  document.querySelectorAll('.count').forEach(el => io.observe(el));
+})();
+
+/* ============================================================
+   COMMAND PALETTE — ⌘K / Ctrl+K
+   ============================================================ */
+(function(){
+  const overlay = document.getElementById('cmdk');
+  const input = document.getElementById('cmdk-input');
+  const list = document.getElementById('cmdk-list');
+  const CMDS = [
+    {label:'goto: home', hint:'section', run:()=>go('#home')},
+    {label:'goto: about', hint:'section', run:()=>go('#about')},
+    {label:'goto: projects', hint:'section', run:()=>go('#projects')},
+    {label:'goto: skills', hint:'section', run:()=>go('#skills')},
+    {label:'goto: experience', hint:'section', run:()=>go('#experience')},
+    {label:'goto: reading', hint:'section', run:()=>go('#reading')},
+    {label:'goto: contact', hint:'section', run:()=>go('#contact')},
+    {label:'open: github', hint:'external', run:()=>window.open('https://github.com/umaarmirzaa','_blank')},
+    {label:'open: linkedin', hint:'external', run:()=>window.open('https://linkedin.com/in/umaarmirzaa','_blank')},
+    {label:'copy: email address', hint:'clipboard', run:copyEmail},
+    {label:'mail: umaarmirzaa@gmail.com', hint:'mailto', run:()=>location.href='mailto:umaarmirzaa@gmail.com'}
+  ];
+  let filtered = CMDS, sel = 0;
+
+  function go(id){ document.querySelector(id).scrollIntoView({behavior:'smooth'}); }
+  function copyEmail(){
+    if(navigator.clipboard) navigator.clipboard.writeText('umaarmirzaa@gmail.com');
+  }
+  function render(){
+    list.innerHTML = '';
+    if(!filtered.length){
+      list.innerHTML = '<div class="cmdk-empty">no matching command — command not found</div>';
+      return;
+    }
+    filtered.forEach((c,i) => {
+      const div = document.createElement('div');
+      div.className = 'cmdk-item' + (i===sel ? ' sel' : '');
+      div.innerHTML = '<span>' + c.label + '</span><span class="hint">' + c.hint + '</span>';
+      div.addEventListener('click', () => { close(); c.run(); });
+      list.appendChild(div);
+    });
+  }
+  function open(){
+    overlay.classList.add('open');
+    input.value = ''; filtered = CMDS; sel = 0; render();
+    setTimeout(()=>input.focus(), 30);
+  }
+  function close(){ overlay.classList.remove('open'); }
+
+  addEventListener('keydown', e => {
+    if((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k'){
+      e.preventDefault();
+      overlay.classList.contains('open') ? close() : open();
+    } else if(overlay.classList.contains('open')){
+      if(e.key === 'Escape') close();
+      else if(e.key === 'ArrowDown'){ e.preventDefault(); sel = Math.min(sel+1, filtered.length-1); render(); }
+      else if(e.key === 'ArrowUp'){ e.preventDefault(); sel = Math.max(sel-1, 0); render(); }
+      else if(e.key === 'Enter' && filtered[sel]){ close(); filtered[sel].run(); }
+    }
+  });
+  input.addEventListener('input', () => {
+    const q = input.value.toLowerCase().trim();
+    filtered = CMDS.filter(c => c.label.toLowerCase().includes(q));
+    sel = 0; render();
+  });
+  overlay.addEventListener('click', e => { if(e.target === overlay) close(); });
+})();
+
+/* ============================================================
+   CONTACT FORM → mailto
+   ============================================================ */
+document.getElementById('cform').addEventListener('submit', function(e){
+  e.preventDefault();
+  const name = document.getElementById('cf-name').value.trim();
+  const email = document.getElementById('cf-email').value.trim();
+  const msg = document.getElementById('cf-msg').value.trim();
+  const subject = encodeURIComponent('Portfolio contact — ' + name);
+  const body = encodeURIComponent(msg + '\n\n— ' + name + ' <' + email + '>');
+  location.href = 'mailto:umaarmirzaa@gmail.com?subject=' + subject + '&body=' + body;
+});
+
+/* ============================================================
+   PIXEL CARD — React Bits PixelCard ported to vanilla.
+   Pixels shimmer in on hover behind the copy; the scrim above the
+   canvas keeps every word at full contrast.
+   ============================================================ */
+(function(){
+  const cards = document.querySelectorAll('.proj-card');
+  if(!cards.length) return;
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  const GAP = 10;                       // wider than the 5px default — these
+                                        // cards are big, 5px is ~25k pixels
+  const SPEED = 35, COLORS = ['#ededef','#a1a1aa','#52525b'];
+  const effectiveSpeed = reduced ? 0 : SPEED * 0.001;
+  const rand = (min,max) => Math.random()*(max-min)+min;
+
+  class Pixel {
+    constructor(ctx,x,y,color,speed,delay){
+      this.ctx=ctx; this.x=x; this.y=y; this.color=color;
+      this.speed=rand(0.1,0.9)*speed;
+      this.size=0; this.sizeStep=Math.random()*0.4;
+      this.minSize=0.5; this.maxSizeInteger=2;
+      this.maxSize=rand(this.minSize,this.maxSizeInteger);
+      this.delay=delay; this.counter=0; this.counterStep=Math.random()*4+1;
+      this.isIdle=false; this.isReverse=false; this.isShimmer=false;
+    }
+    draw(){
+      const off=this.maxSizeInteger*0.5 - this.size*0.5;
+      this.ctx.fillStyle=this.color;
+      this.ctx.fillRect(this.x+off, this.y+off, this.size, this.size);
+    }
+    appear(){
+      this.isIdle=false;
+      if(this.counter<=this.delay){ this.counter+=this.counterStep; return; }
+      if(this.size>=this.maxSize) this.isShimmer=true;
+      if(this.isShimmer) this.shimmer(); else this.size+=this.sizeStep;
+      this.draw();
+    }
+    disappear(){
+      this.isShimmer=false; this.counter=0;
+      if(this.size<=0){ this.isIdle=true; return; }
+      this.size-=0.1;
+      this.draw();
+    }
+    shimmer(){
+      if(this.size>=this.maxSize) this.isReverse=true;
+      else if(this.size<=this.minSize) this.isReverse=false;
+      this.size += this.isReverse ? -this.speed : this.speed;
+    }
+  }
+
+  cards.forEach(card => {
+    const canvas = document.createElement('canvas');
+    canvas.className = 'pixel-canvas';
+    card.prepend(canvas);
+    const ctx = canvas.getContext('2d');
+    let pixels = [], raf = null, prev = performance.now();
+
+    function init(){
+      const r = card.getBoundingClientRect();
+      const w = Math.floor(r.width), h = Math.floor(r.height);
+      if(!w || !h) return;
+      canvas.width = w; canvas.height = h;
+      pixels = [];
+      for(let x=0;x<w;x+=GAP){
+        for(let y=0;y<h;y+=GAP){
+          const color = COLORS[Math.floor(Math.random()*COLORS.length)];
+          const dx=x-w/2, dy=y-h/2;
+          const delay = reduced ? 0 : Math.sqrt(dx*dx+dy*dy);
+          pixels.push(new Pixel(ctx,x,y,color,effectiveSpeed,delay));
+        }
+      }
+    }
+    function loop(fn){
+      raf = requestAnimationFrame(()=>loop(fn));
+      const now = performance.now(), passed = now - prev, interval = 1000/60;
+      if(passed < interval) return;                 // cap at 60fps
+      prev = now - (passed % interval);
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      let allIdle = true;
+      for(const p of pixels){ p[fn](); if(!p.isIdle) allIdle = false; }
+      if(allIdle) cancelAnimationFrame(raf);        // stop once fully faded
+    }
+    function run(fn){ cancelAnimationFrame(raf); raf = requestAnimationFrame(()=>loop(fn)); }
+
+    card.addEventListener('pointerenter', ()=>run('appear'));
+    card.addEventListener('pointerleave', ()=>run('disappear'));
+    card.addEventListener('focusin',  e=>{ if(!card.contains(e.relatedTarget)) run('appear'); });
+    card.addEventListener('focusout', e=>{ if(!card.contains(e.relatedTarget)) run('disappear'); });
+
+    init();
+    new ResizeObserver(init).observe(card);
+  });
+})();
+
+/* ============================================================
+   GOOEY NAV — React Bits GooeyNav ported to vanilla
+   ============================================================ */
+(function(){
+  const container = document.getElementById('gnav');
+  if(!container) return;
+  const nav    = container.querySelector('ul');
+  const filter = container.querySelector('.effect.filter');
+  const text   = container.querySelector('.effect.text');
+  const items  = [...nav.querySelectorAll('li')];
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  const ANIM_TIME = 600, PARTICLES = 15, DIST = [90,10], R = 100, TIME_VAR = 300;
+  const COLORS = [1,2,3,1,2,3,1,4];
+  let activeIndex = 0;
+
+  const noise = (n=1) => n/2 - Math.random()*n;
+  const getXY = (distance, i, total) => {
+    const angle = ((360 + noise(8))/total) * i * (Math.PI/180);
+    return [distance*Math.cos(angle), distance*Math.sin(angle)];
+  };
+  const createParticle = (i,t,d,r) => {
+    const rotate = noise(r/10);
+    return {
+      start: getXY(d[0], PARTICLES - i, PARTICLES),
+      end:   getXY(d[1] + noise(7), PARTICLES - i, PARTICLES),
+      time: t, scale: 1 + noise(0.2),
+      color: COLORS[Math.floor(Math.random()*COLORS.length)],
+      rotate: rotate > 0 ? (rotate + r/20)*10 : (rotate - r/20)*10
+    };
+  };
+  function makeParticles(el){
+    if(reduced) return;
+    el.style.setProperty('--time', `${ANIM_TIME*2 + TIME_VAR}ms`);
+    for(let i=0;i<PARTICLES;i++){
+      const t = ANIM_TIME*2 + noise(TIME_VAR*2);
+      const p = createParticle(i,t,DIST,R);
+      el.classList.remove('active');
+      setTimeout(()=>{
+        const particle = document.createElement('span');
+        const point = document.createElement('span');
+        particle.classList.add('particle');
+        particle.style.setProperty('--start-x', `${p.start[0]}px`);
+        particle.style.setProperty('--start-y', `${p.start[1]}px`);
+        particle.style.setProperty('--end-x',   `${p.end[0]}px`);
+        particle.style.setProperty('--end-y',   `${p.end[1]}px`);
+        particle.style.setProperty('--time',    `${p.time}ms`);
+        particle.style.setProperty('--scale',   `${p.scale}`);
+        particle.style.setProperty('--color',   `var(--color-${p.color}, #fff)`);
+        particle.style.setProperty('--rotate',  `${p.rotate}deg`);
+        point.classList.add('point');
+        particle.appendChild(point);
+        el.appendChild(particle);
+        requestAnimationFrame(()=>el.classList.add('active'));
+        setTimeout(()=>{ try{ el.removeChild(particle); }catch{} }, t);
+      }, 30);
+    }
+  }
+  function updateEffectPosition(el){
+    const c = container.getBoundingClientRect(), pos = el.getBoundingClientRect();
+    const styles = {
+      left:`${pos.x - c.x}px`, top:`${pos.y - c.y}px`,
+      width:`${pos.width}px`,  height:`${pos.height}px`
+    };
+    Object.assign(filter.style, styles);
+    Object.assign(text.style, styles);
+    text.innerText = el.innerText;
+  }
+  function setActive(index, animate){
+    if(index === activeIndex || !items[index]) return;
+    items[activeIndex]?.classList.remove('active');
+    activeIndex = index;
+    const li = items[index];
+    li.classList.add('active');
+    updateEffectPosition(li);
+    if(!animate) return;
+    filter.querySelectorAll('.particle').forEach(p => p.remove());
+    text.classList.remove('active');
+    void text.offsetWidth;              // reflow so the animation restarts
+    text.classList.add('active');
+    makeParticles(filter);
+  }
+
+  items.forEach((li,i) => li.addEventListener('click', () => setActive(i, true)));
+
+  // keep the pill in sync with where the reader actually is
+  const sections = items.map(li => document.querySelector(li.querySelector('a').getAttribute('href')));
+  const spy = new IntersectionObserver(entries => {
+    for(const e of entries){
+      if(!e.isIntersecting) continue;
+      const i = sections.indexOf(e.target);
+      if(i > -1) setActive(i, false);
+    }
+  }, {rootMargin:'-45% 0px -50% 0px'});
+  sections.forEach(s => s && spy.observe(s));
+
+  updateEffectPosition(items[activeIndex]);
+  text.classList.add('active');
+  new ResizeObserver(() => updateEffectPosition(items[activeIndex])).observe(container);
+})();
+</script>
+</body>
+</html>

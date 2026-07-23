@@ -1,0 +1,13 @@
+# stashed UI inspiration, not part of the site
+ui-components/
+
+# os / editor cruft
+Thumbs.db
+.DS_Store
+*.log
+
+# brag video build scratch (incl. third-party music, license unverified)
+brag-output/composition/
+
+# claude preview launch config (machine-specific)
+.claude/
